@@ -1,0 +1,6 @@
+# 프론트엔드 파일은 언어 통계에서 제외
+sc-frontend/* linguist-detectable=false
+
+# 백엔드 Java 코드 강조
+sc-backend/src/main/java/** linguist-language=Java
+
