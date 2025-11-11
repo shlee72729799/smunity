@@ -19,7 +19,7 @@ Tools	IntelliJ IDEA, VSCode, GitHub, Postman
 
 🔐 회원가입 / 로그인
 BCrypt로 비밀번호 암호화 후 저장
-중복 ID 및 이메일 검사
+중복 ID 검사
 
 📰 게시판 CRUD
 글 작성 / 목록 / 수정 / 삭제 기능
