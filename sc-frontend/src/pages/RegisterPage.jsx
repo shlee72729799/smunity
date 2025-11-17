@@ -64,7 +64,7 @@ const RegisterPage = () => {
           <span>💭</span>
         </div>
         
-        <h1><Link to="/" className="logo-link">sm-connect</Link> 회원가입</h1>
+        <h1><Link to="/" className="logo-link">스뮤니티</Link> 회원가입</h1>
         <p className="subtitle">상명대학교 커뮤니티</p>
         
 

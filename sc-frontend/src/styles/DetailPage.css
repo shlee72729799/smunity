@@ -272,6 +272,16 @@
   color: #667eea;
 }
 
+.board-context-banner {
+  background: #f0f4ff;
+  border: 1px solid #c8d4ff;
+  color: #4953a4;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
 @media (max-width: 1024px) {
   .detail-content {
     flex-direction: column;

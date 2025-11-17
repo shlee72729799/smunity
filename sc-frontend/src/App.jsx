@@ -4,6 +4,8 @@ import MainPage from './pages/MainPage'
 import DetailPage from './pages/DetailPage'
 import RegisterPage from './pages/RegisterPage'
 import LoginPage from './pages/LoginPage'
+import CommunityPage from './pages/CommunityPage'
+import BoardPage from './pages/BoardPage'
 
 function App() {
   return (
@@ -11,6 +13,8 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<MainPage />} />
+          <Route path="/community" element={<CommunityPage />} />
+          <Route path="/board/:type" element={<BoardPage />} />
           <Route path="/detail" element={<DetailPage />} />
           <Route path="/detail/:id" element={<DetailPage />} />
           <Route path="/register" element={<RegisterPage />} />

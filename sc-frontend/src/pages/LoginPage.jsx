@@ -55,7 +55,7 @@ const LoginPage = () => {
           <div className="mascot-duck">🐤</div>
         </div>
 
-        <h1><Link to="/" className="logo-link">sm-connect</Link></h1>
+        <h1><Link to="/" className="logo-link">스뮤니티</Link></h1>
         <p className="subtitle">상명대학교 커뮤니티</p>
 
         <form onSubmit={handleSubmit} className="login-form">

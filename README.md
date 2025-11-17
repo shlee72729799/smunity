@@ -4,7 +4,7 @@
 React + Spring Boot + H2 Database로 구성된 교내 커뮤니티 웹서비스
 
 📘 프로젝트 개요
- 스뮤니티는 상명대학교 학생들이 자유롭게 정보를 공유하고 소통할 수 있도록 만든 전용 커뮤니티입니다.
+스뮤니티는 상명대학교 학생들이 자유롭게 정보를 공유하고 소통할 수 있도록 만든 전용 커뮤니티입니다.
 ‘스누라이프(SNUlife)’나 ‘고파스’처럼 학교별 독립 커뮤니티의 필요성을 기반으로 기획되었습니다.
 
 🧩 주요 기술 스택
@@ -19,7 +19,7 @@ Tools	IntelliJ IDEA, VSCode, GitHub, Postman
 
 🔐 회원가입 / 로그인
 BCrypt로 비밀번호 암호화 후 저장
-중복 ID 검사
+중복 ID 및 이메일 검사
 
 📰 게시판 CRUD
 글 작성 / 목록 / 수정 / 삭제 기능
@@ -49,7 +49,7 @@ PATCH	/Community/{id}	글 수정
 DELETE	/Community/{id}	글 삭제
 
 🧠 폴더 구조
-sm-connect/
+스뮤니티/
  ├── backend/
  │   ├── src/main/java/com/example/lsh_community/
  │   │    ├── controller/

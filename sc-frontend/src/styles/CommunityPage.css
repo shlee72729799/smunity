@@ -1,0 +1,253 @@
+.community-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 3rem;
+}
+
+.community-header {
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.community-page .header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.community-page .logo {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #667eea;
+  text-decoration: none;
+}
+
+.community-page .main-nav {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.community-page .main-nav a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+}
+
+.community-page .main-nav a:hover {
+  color: #667eea;
+}
+
+.community-page .auth-links {
+  display: flex;
+  gap: 1rem;
+}
+
+.community-page .auth-links a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+}
+
+.community-page .auth-links a:hover {
+  color: #667eea;
+}
+
+.community-tabs {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem 2rem;
+  border-bottom: 1px solid rgba(229, 231, 240, 0.6);
+  background: rgba(255, 255, 255, 0.9);
+  flex-wrap: wrap;
+  backdrop-filter: blur(6px);
+}
+
+.tab-item {
+  border: none;
+  background: transparent;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  font-weight: 600;
+  color: #7a7a7a;
+  cursor: pointer;
+}
+
+.tab-item.active {
+  background: #ff5b64;
+  color: #fff;
+}
+
+.community-body {
+  max-width: 1200px;
+  margin: 2rem auto;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+  padding: 0 2rem 3rem;
+}
+
+.community-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.write-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  font-weight: 600;
+}
+
+.write-action {
+  background: #ff5b64;
+  color: white;
+  padding: 0.4rem 1.25rem;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.write-action:hover {
+  opacity: 0.9;
+}
+
+.post-list-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  padding: 1.5rem;
+}
+
+.post-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eef0f5;
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.post-list-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.post-state {
+  padding: 2rem 0;
+  text-align: center;
+  color: #7c7f91;
+}
+
+.post-state.error {
+  color: #ff5b64;
+}
+
+.community-post-list {
+  list-style: none;
+}
+
+.community-post-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.85rem 0;
+  text-decoration: none;
+  color: #333;
+  border-bottom: 1px solid #f1f2f6;
+}
+
+.community-post-item:last-child {
+  border-bottom: none;
+}
+
+.community-post-title {
+  font-weight: 600;
+}
+
+.community-post-comments {
+  color: #ff5b64;
+  font-weight: 600;
+  margin-left: 0.35rem;
+}
+
+.community-post-meta {
+  color: #9ea2b1;
+  font-size: 0.9rem;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.community-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sidebar-widget {
+  background: white;
+  border-radius: 8px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.sidebar-widget h3 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+}
+
+.sidebar-widget ul {
+  list-style: none;
+}
+
+.sidebar-widget li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid #f1f2f6;
+}
+
+.sidebar-widget li:last-child {
+  border-bottom: none;
+}
+
+.sidebar-widget a {
+  color: #333;
+  text-decoration: none;
+}
+
+.sidebar-widget a:hover {
+  color: #667eea;
+}
+
+.sidebar-widget .count {
+  color: #ff5b64;
+  font-weight: 600;
+}
+
+@media (max-width: 960px) {
+  .community-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .community-tabs {
+    padding: 0.75rem 1rem;
+  }
+
+  .community-body {
+    padding: 0 1rem 2rem;
+  }
+}
+

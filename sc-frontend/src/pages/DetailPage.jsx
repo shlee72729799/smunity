@@ -1,6 +1,6 @@
 // src/pages/DetailPage.jsx
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import {
   createCommunityPost,
@@ -8,40 +8,47 @@ import {
   updateCommunityPost,
   deleteCommunityPost,
 } from '../api/client';
+import {
+  addLocalBoardPost,
+  deleteLocalBoardPost,
+  findLocalBoardPost,
+  updateLocalBoardPost,
+} from '../utils/boardStorage';
 import '../styles/DetailPage.css';
+import { boardConfigs } from '../data/boardData';
 
 const DetailPage = () => {
   const { isLoggedIn, logout } = useAuth();
   const categories = {
     community: [
-      { name: '자유게시판', count: 16 },
-      { name: '익게1', count: 13 },
-      { name: '익게2', count: 298 },
-      { name: '연애상담소', count: 13 },
-      { name: '졸업생', count: 4 },
-      { name: '냉동실', count: 4 },
-      { name: '정치', count: 11 },
-      { name: '주식/투자', count: 1 },
-      { name: '맛집', count: 1 },
-      { name: '헬스', count: 1 },
-      { name: '총학생회', count: 0 },
-      { name: '회원문의/탈퇴', count: 0 },
+      { name: '자유게시판', count: 16, slug: 'free' },
+      { name: '익게1', count: 13, slug: 'anonymous1' },
+      { name: '익게2', count: 298, slug: 'anonymous2' },
+      { name: '연애상담소', count: 13, slug: 'romance' },
+      { name: '졸업생', count: 4, slug: 'alumni' },
+      { name: '냉동실', count: 4, slug: 'freezer' },
+      { name: '정치', count: 11, slug: 'politics' },
+      { name: '주식/투자', count: 1, slug: 'stocks' },
+      { name: '맛집', count: 1, slug: 'food' },
+      { name: '헬스', count: 1, slug: 'health' },
+      { name: '총학생회', count: 0, slug: 'studentCouncil' },
+      { name: '회원문의/탈퇴', count: 0, slug: 'membership' },
     ],
     career: [
-      { name: '모집공고', count: 11 },
-      { name: '취업게시판', count: 32 },
-      { name: 'CPA/세무사', count: 9 },
-      { name: '로스쿨', count: 0 },
-      { name: '고시/전문직', count: 0 },
-      { name: '일반대학원', count: 1 },
+      { name: '모집공고', count: 11, slug: 'recruit' },
+      { name: '취업게시판', count: 32, slug: 'job' },
+      { name: 'CPA/세무사', count: 9, slug: 'cpa' },
+      { name: '로스쿨', count: 0, slug: 'lawschool' },
+      { name: '고시/전문직', count: 0, slug: 'exam' },
+      { name: '일반대학원', count: 1, slug: 'grad' },
     ],
     life: [
-      { name: '벼룩시장', count: 1 },
-      { name: '연재/칼럼', count: 0 },
-      { name: '제휴병원', count: 0 },
-      { name: '서강학보', count: 0 },
-      { name: '인터넷 가입', count: 0 },
-      { name: '휴대폰 상담', count: 0 },
+      { name: '벼룩시장', count: 1, slug: 'flea' },
+      { name: '연재/칼럼', count: 0, slug: 'serial' },
+      { name: '제휴병원', count: 0, slug: 'hospital' },
+      { name: '상명학보', count: 0, slug: 'sangmyungNews' },
+      { name: '인터넷 가입', count: 0, slug: 'internet' },
+      { name: '휴대폰 상담', count: 0, slug: 'mobile' },
     ],
     genealogy: [
       { name: '강의평가', count: 0 },
@@ -49,20 +56,78 @@ const DetailPage = () => {
   };
 
   const { id } = useParams();
-  const isNew = useMemo(() => !id || id === 'new', [id]);
+  const location = useLocation();
+  const searchParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
+  const boardType = location.state?.boardType || searchParams.get('board') || null;
+  const localPostId = location.state?.localId || searchParams.get('localId') || null;
+  const statePost = location.state?.post;
+  const initialLocalPost = useMemo(() => {
+    if (!boardType || !localPostId) return null;
+    if (statePost?.localId === localPostId) return statePost;
+    return findLocalBoardPost(boardType, localPostId);
+  }, [boardType, localPostId, statePost]);
+  const staticPost = initialLocalPost ? null : statePost;
+  const isLocalPost = Boolean(initialLocalPost);
+  const isStatic = Boolean(staticPost);
+  const isNew = useMemo(() => !isStatic && !isLocalPost && (!id || id === 'new'), [id, isStatic, isLocalPost]);
+  const boardConfig = boardType ? boardConfigs[boardType] : null;
+  const isLocalBoardTarget = useMemo(() => Boolean(boardConfig && !boardConfig.fetchCommunity), [boardConfig]);
+  const boardLabel = boardType ? (boardConfig?.title ?? boardType) : null;
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({ title: '', content: '', name: '' });
-  const [anon, setAnon] = useState(false);
-  const [loadedPost, setLoadedPost] = useState(null);
+  const [form, setForm] = useState({
+    title: initialLocalPost?.title ?? staticPost?.title ?? '',
+    content: initialLocalPost?.content ?? staticPost?.content ?? '',
+    name: initialLocalPost?.name ?? staticPost?.name ?? '',
+  });
+  const [anon, setAnon] = useState(
+    (initialLocalPost?.name ?? staticPost?.name ?? '') === '익명'
+  );
+  const [loadedPost, setLoadedPost] = useState(initialLocalPost ?? staticPost ?? null);
   const [isEditing, setIsEditing] = useState(false);
-  const [loading, setLoading] = useState(!isNew);
+  const [loading, setLoading] = useState(
+    !(initialLocalPost || isLocalBoardTarget || isStatic || isNew)
+  );
   const [saving, setSaving] = useState(false);
 
-  const rulesText = `sm-connect은 누구나 기분 좋게 참여할 수 있는 커뮤니티를 만들기 위해 커뮤니티 이용규칙을 제정하여 운영하고 있습니다. 위반 시 게시물이 삭제되고 서비스 이용이 일정 기간 제한될 수 있습니다.\n\n아래는 이 게시판에 해당하는 핵심 내용의 요약 사항이며, 게시물 작성 전 커뮤니티 이용규칙 전문을 반드시 확인하시기 바랍니다.\n\n※ 정치·사회 관련 행위 금지\n- 국가기관, 정치 관련 단체, 언론, 신문·인터넷매체에 대한 언급 혹은 이와 관련한 행위\n- 정책·외교 또는 정치·정쟁에 대한 의견, 주장 및 이념, 가치관을 드러내는 행위\n- 성별, 종교, 인종, 출신, 지역, 직업, 이름 등 사회적 이슈에 대한 언급 혹은 이와 관련한 행위\n- 위와 같은 내용으로 유추될 수 있는 비유, 은어 사용 행위\n* 해당 게시물은 시사·이슈 게시판에만 작성 가능합니다.\n\n※ 홍보 및 판매 관련 행위 금지\n- 업과 여부와 관계 없이 사회·기관·단체·개인에게 직간접적으로 영향을 줄 수 있는 게시물 작성 행위\n- 위와 관련된 것으로 의심되거나 예상될 수 있는 바이럴 홍보 및 명칭·단어 언급 행위\n* 해당 게시물은 홍보게시판에만 작성 가능합니다.\n\n※ 불법촬영물 유통 금지 및 그 밖의 규칙 위반 금지`;
+  const rulesText = `스뮤니티는 누구나 기분 좋게 참여할 수 있는 커뮤니티를 만들기 위해 커뮤니티 이용규칙을 제정하여 운영하고 있습니다. 위반 시 게시물이 삭제되고 서비스 이용이 일정 기간 제한될 수 있습니다.\n\n아래는 이 게시판에 해당하는 핵심 내용의 요약 사항이며, 게시물 작성 전 커뮤니티 이용규칙 전문을 반드시 확인하시기 바랍니다.\n\n※ 정치·사회 관련 행위 금지\n- 국가기관, 정치 관련 단체, 언론, 신문·인터넷매체에 대한 언급 혹은 이와 관련한 행위\n- 정책·외교 또는 정치·정쟁에 대한 의견, 주장 및 이념, 가치관을 드러내는 행위\n- 성별, 종교, 인종, 출신, 지역, 직업, 이름 등 사회적 이슈에 대한 언급 혹은 이와 관련한 행위\n- 위와 같은 내용으로 유추될 수 있는 비유, 은어 사용 행위\n* 해당 게시물은 시사·이슈 게시판에만 작성 가능합니다.\n\n※ 홍보 및 판매 관련 행위 금지\n- 업과 여부와 관계 없이 사회·기관·단체·개인에게 직간접적으로 영향을 줄 수 있는 게시물 작성 행위\n- 위와 관련된 것으로 의심되거나 예상될 수 있는 바이럴 홍보 및 명칭·단어 언급 행위\n* 해당 게시물은 홍보게시판에만 작성 가능합니다.\n\n※ 불법촬영물 유통 금지 및 그 밖의 규칙 위반 금지`;
 
   // 기존 글 불러오기 (조회/수정)
   useEffect(() => {
+    if (initialLocalPost) {
+      setLoadedPost(initialLocalPost);
+      setForm({
+        title: initialLocalPost?.title ?? '',
+        content: initialLocalPost?.content ?? '',
+        name: initialLocalPost?.name ?? '',
+      });
+      setAnon((initialLocalPost?.name ?? '') === '익명');
+      setLoading(false);
+      return;
+    }
+    if (isLocalBoardTarget && localPostId) {
+      const local = findLocalBoardPost(boardType, localPostId);
+      if (local) {
+        setLoadedPost(local);
+        setForm({
+          title: local?.title ?? '',
+          content: local?.content ?? '',
+          name: local?.name ?? '',
+        });
+        setAnon((local?.name ?? '') === '익명');
+      } else {
+        alert('게시글을 찾을 수 없습니다.');
+        navigate(boardType ? `/board/${boardType}` : '/');
+      }
+      setLoading(false);
+      return;
+    }
+    if (isStatic) {
+      setLoadedPost(staticPost);
+      setLoading(false);
+      setIsEditing(false);
+      return;
+    }
     let cancelled = false;
     (async () => {
       if (isNew) {
@@ -88,7 +153,7 @@ const DetailPage = () => {
       }
     })();
     return () => { cancelled = true; };
-  }, [id, isNew, navigate]);
+  }, [boardType, id, initialLocalPost, isLocalBoardTarget, isNew, isStatic, localPostId, navigate, staticPost]);
 
   const onChange = (e) => {
     const { name, value } = e.target;
@@ -122,6 +187,24 @@ const DetailPage = () => {
       return;
     }
 
+    if (isLocalBoardTarget) {
+      if (localPostId) {
+        const updated = updateLocalBoardPost(boardType, localPostId, {
+          ...payload,
+        });
+        setLoadedPost(updated);
+        setIsEditing(false);
+        alert('수정 완료');
+      } else {
+        addLocalBoardPost(boardType, {
+          ...payload,
+          comments: 0,
+        });
+        navigate(`/board/${boardType}`);
+      }
+      return;
+    }
+
     try {
       setSaving(true);
       if (isNew) {
@@ -146,6 +229,11 @@ const DetailPage = () => {
   const onDelete = async () => {
     if (saving) return;
     if (!confirm('정말 삭제하시겠어요?')) return;
+    if (isLocalBoardTarget && localPostId) {
+      deleteLocalBoardPost(boardType, localPostId);
+      navigate(`/board/${boardType}`);
+      return;
+    }
     try {
       setSaving(true);
       await deleteCommunityPost(id);
@@ -161,11 +249,15 @@ const DetailPage = () => {
     return <div className="post-loading">로딩중…</div>;
   }
 
+  if (isStatic && !loadedPost) {
+    return <div className="post-loading">게시글 정보를 찾을 수 없습니다.</div>;
+  }
+
   return (
     <div className="detail-page">
       <header className="detail-header">
         <div className="header-content">
-          <Link to="/" className="logo">sm-connect</Link>
+          <Link to="/" className="logo">스뮤니티</Link>
           <nav className="main-nav">
             <a href="#community">커뮤니티</a>
             <a href="#career">커리어</a>
@@ -245,6 +337,11 @@ const DetailPage = () => {
         <main className="post-detail">
           {isNew && (
             <>
+              {isLocalBoardTarget && boardLabel && (
+                <div className="board-context-banner">
+                  <strong>{boardLabel}</strong> 게시판에 글을 작성하고 있어요.
+                </div>
+              )}
               <form className="editor" onSubmit={onSubmit}>
                 <input
                   className="editor-title"
@@ -315,12 +412,16 @@ const DetailPage = () => {
             <div className="post-body">
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
                 <h1 style={{ marginTop: 0, flex: 1 }}>{loadedPost.title}</h1>
-                <button type="button" className="editor-submit" onClick={() => setIsEditing(true)}>
-                  수정
-                </button>
-                <button type="button" className="editor-submit" onClick={onDelete}>
-                  삭제
-                </button>
+                {!isStatic && (
+                  <>
+                    <button type="button" className="editor-submit" onClick={() => setIsEditing(true)}>
+                      수정
+                    </button>
+                    <button type="button" className="editor-submit" onClick={onDelete}>
+                      삭제
+                    </button>
+                  </>
+                )}
               </div>
               <p style={{ whiteSpace: 'pre-wrap' }}>{loadedPost.content}</p>
             </div>

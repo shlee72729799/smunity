@@ -66,6 +66,10 @@
   position: relative;
 }
 
+.banner-spacing {
+  height: 2rem;
+}
+
 .write-button {
   position: absolute;
   right: 1.5rem;
@@ -122,6 +126,18 @@
   flex: 1;
   font-size: 1.1rem;
   font-weight: 600;
+}
+
+.board-title-link {
+  flex: 1;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  text-decoration: none;
+}
+
+.board-title-link:hover {
+  color: #667eea;
 }
 
 .more-link {
