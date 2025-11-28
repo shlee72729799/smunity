@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import '../styles/MainPage.css'
 import { fetchCommunityList } from '../api/client'
 
 const MainPage = () => {
     const { isLoggedIn, logout } = useAuth()
+    const navigate = useNavigate()
 
     // [상태 관리] 서버에서 가져온 게시글 목록
     const [communityPosts, setCommunityPosts] = useState([])
@@ -67,28 +68,45 @@ const MainPage = () => {
         { title: '이번주 주말 개꿀 대외활동 할 사람?!', comments: 1 },
     ]
 
-    // 게시판 섹션 컴포넌트 (재사용)
-    const BoardSection = ({ title, icon, iconText, posts, children }) => (
-        <div className="board-section">
-            <div className="board-header">
-                <span className="board-icon">{iconText}</span>
-                <h3>{title}</h3>
-                <Link to="/detail" className="more-link">+ 더보기</Link>
-            </div>
-            <ul className="post-list">
-                {/* 1. 고정된 더미 데이터 렌더링 */}
-                {posts && posts.map((post, index) => (
-                    <li key={`static-${index}`}>
-                        <span className="post-title">{post.title}</span>
-                        {post.comments > 0 && <span className="comment-count">[{post.comments}]</span>}
-                    </li>
-                ))}
+    // 게시판 섹션 컴포넌트
+    const BoardSection = ({ title, icon, iconText, posts, children }) => {
 
-                {/* 2. (자유게시판 등) 서버에서 불러온 데이터 렌더링 */}
-                {children}
-            </ul>
-        </div>
-    )
+        // 더보기 클릭 시 실행될 함수
+        const handleMoreClick = (e) => {
+            if (!isLoggedIn) {
+                e.preventDefault(); // 1. 원래 이동하려는 동작을 막음
+                alert("로그인 후 이용 가능합니다."); // 2. 알림 띄움
+                navigate('/login'); // 3. 로그인 페이지로 보냄
+            }
+        }
+
+        return (
+            <div className="board-section">
+                <div className="board-header">
+                    <span className="board-icon">{iconText}</span>
+                    <h3>{title}</h3>
+
+                    {/* onClick 이벤트를 연결 */}
+                    <Link to="/detail" className="more-link" onClick={handleMoreClick}>
+                        + 더보기
+                    </Link>
+                </div>
+                <ul className="post-list">
+                    {posts && posts.map((post, index) => (
+                        <li
+                            key={`static-${index}`}
+                            onClick={() => alert("이 글은 예시(Dummy) 데이터입니다.")}
+                            style={{cursor: 'pointer'}}
+                        >
+                            <span className="post-title">{post.title}</span>
+                            {post.comments > 0 && <span className="comment-count">[{post.comments}]</span>}
+                        </li>
+                    ))}
+                    {children}
+                </ul>
+            </div>
+        )
+    }
 
     return (
         <div className="main-page">
@@ -121,7 +139,10 @@ const MainPage = () => {
 
             <div className="banner">
                 따뜻한 SM Connect
-                <Link to="/detail" className="write-button">글작성</Link>
+                {/* 로그인한 사람(isLoggedIn)에게만 버튼 보여주기 */}
+                {isLoggedIn && (
+                    <Link to="/detail" className="write-button">글작성</Link>
+                )}
             </div>
 
             <div className="main-content">

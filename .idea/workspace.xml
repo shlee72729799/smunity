@@ -4,7 +4,26 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="209e44aa-cd50-4f4b-b685-65825e16355e" name="Changes" comment="" />
+    <list default="true" id="209e44aa-cd50-4f4b-b685-65825e16355e" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/sc-backend/src/main/java/com/example/lsh_community/controller/MyPageController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sc-backend/src/main/java/com/example/lsh_community/dto/NicknameUpdateRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sc-backend/src/main/java/com/example/lsh_community/dto/PasswordUpdateRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sc-frontend/src/pages/MyPage.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sc-frontend/src/styles/MyPage.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sc-backend/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/sc-backend/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sc-backend/src/main/java/com/example/lsh_community/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/sc-backend/src/main/java/com/example/lsh_community/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sc-backend/src/main/java/com/example/lsh_community/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/sc-backend/src/main/java/com/example/lsh_community/controller/AuthController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sc-backend/src/main/java/com/example/lsh_community/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/sc-backend/src/main/java/com/example/lsh_community/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sc-backend/src/main/java/com/example/lsh_community/dto/AuthResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/sc-backend/src/main/java/com/example/lsh_community/dto/AuthResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sc-backend/src/main/java/com/example/lsh_community/service/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/sc-backend/src/main/java/com/example/lsh_community/service/AuthService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sc-backend/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/sc-backend/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sc-frontend/src/api/client.js" beforeDir="false" afterPath="$PROJECT_DIR$/sc-frontend/src/api/client.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sc-frontend/src/contexts/AuthContext.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/sc-frontend/src/contexts/AuthContext.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sc-frontend/src/pages/DetailPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/sc-frontend/src/pages/DetailPage.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sc-frontend/src/pages/MainPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/sc-frontend/src/pages/MainPage.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sc-frontend/src/pages/RegisterPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/sc-frontend/src/pages/RegisterPage.jsx" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -56,17 +75,21 @@
     </favorite-branches>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "kyjhcw-rgb"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;kyjhcw-rgb&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/shlee72729799/smunity.git",
-    "accountId": "5706cac4-3e29-4dda-b33a-9d2482ad1ed3"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/shlee72729799/smunity.git&quot;,
+    &quot;accountId&quot;: &quot;5706cac4-3e29-4dda-b33a-9d2482ad1ed3&quot;
   }
+}</component>
+  <component name="KubernetesApiPersistence"><![CDATA[{}]]></component>
+  <component name="KubernetesApiProvider"><![CDATA[{
+  "isMigrated": true
 }]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
@@ -88,7 +111,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "Spring Boot.LshCommunityApplication.executor": "Run",
-    "git-widget-placeholder": "master",
+    "git-widget-placeholder": "feature/email-auth",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Sm-connect",
@@ -98,14 +121,21 @@
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "settings.editor.selected.configurable": "org.jetbrains.plugins.github.ui.GithubSettingsConfigurable",
+    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
     "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
+    ]
   }
 }]]></component>
   <component name="RunManager">
     <configuration name="LshCommunityApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
       <envs>
-        <env name="MAIL_USERNAME" value="kyjhcw@gmail.com" />
         <env name="MAIL_PASSWORD" value="fuzfhyzquafegowm" />
+        <env name="MAIL_USERNAME" value="kyjhcw@gmail.com" />
+        <env name="DB_PASSWORD" value="chaewon1004*" />
       </envs>
       <module name="lsh_community.main" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.lsh_community.LshCommunityApplication" />

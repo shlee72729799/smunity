@@ -68,7 +68,16 @@ const DetailPage = () => {
         let cancelled = false;
 
         (async () => {
-            // 새 글 작성 모드일 때도 로그인이 안 되어 있으면 튕겨내기 (선택사항)
+            // 1. 토큰이 없는지 먼저 검사 (로그아웃 상태)
+            const token = localStorage.getItem('token');
+
+            // 새 글이거나, 수정 모드일 때 토큰이 없으면 쫓아냄
+            if (!token) {
+                alert('로그인이 필요한 서비스입니다.');
+                navigate('/login');
+                return; // 아래 로직 실행 안 되게 종료
+            }
+            // 새 글 작성 모드일 때도 로그인이 안 되어 있으면 튕겨내기
             if (isNew) {
                 if (!localStorage.getItem('token')) {
                     alert('로그인 후 글을 작성할 수 있습니다.');

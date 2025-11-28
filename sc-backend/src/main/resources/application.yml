@@ -1,36 +1,32 @@
 spring:
-  # H2 Database 설정
+  # MySQL 설정
   datasource:
-    driver-class-name: org.h2.Driver
-    url: 'jdbc:h2:mem:test'
-    username: user
-    password: 12345678
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # sm_db 라는 이름의 데이터베이스에 연결합니다.
+    url: jdbc:mysql://localhost:3306/sm_db?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&useSSL=false
+    username: root
+    password: ${DB_PASSWORD}
 
-  # H2 Console 설정
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-
-  # JPA 설정
+  # JPA 설정 (MySQL용)
   jpa:
     hibernate:
-      ddl-auto: create
-    open-in-view: false
+      # update: 서버를 껐다 켜도 데이터가 사라지지 않고 유지됩니다.
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
         show_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
 
-  # Redis 설정 (spring 안으로 들어와야 함!)
+  # Redis 설정 (기존 유지)
   data:
     redis:
       host: localhost
       port: 6379
 
-  # Mail 설정 (spring 안으로 들어와야 함!)
+  # Mail 설정 (기존 유지 - Gmail)
   mail:
-    host: smtp.gmail.com  # Gmail 서버로 변경
+    host: smtp.gmail.com
     port: 587
     username: ${MAIL_USERNAME}
     password: ${MAIL_PASSWORD}
