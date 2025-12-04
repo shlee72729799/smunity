@@ -1,16 +1,18 @@
 package com.example.lsh_community.controller;
 
-import com.example.lsh_community.dto.AuthResponse;
-import com.example.lsh_community.dto.LoginRequest;
-import com.example.lsh_community.dto.SignupRequest;
-import com.example.lsh_community.dto.UserResponse;
+import com.example.lsh_community.dto.*;
+import com.example.lsh_community.service.EmailService;
 import com.example.lsh_community.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,7 +20,16 @@ import java.net.URI;
 public class UserController {
 
     private final UserService userService;
+    private final EmailService emailService;
 
+    // 1. 이메일 인증 코드 발송
+    @PostMapping("/email-verification")
+    public ResponseEntity<String> sendEmailCode(@RequestParam String email) {
+        emailService.sendVerificationEmail(email);
+        return ResponseEntity.ok("인증 코드가 발송되었습니다.");
+    }
+
+    // 2. 회원가입
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> signup(@Valid @RequestBody SignupRequest req) {
         UserResponse user = userService.signup(req);
@@ -28,11 +39,74 @@ public class UserController {
                 .body(response);
     }
 
+    // 3. 로그인
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest req) {
+    public ResponseEntity<AuthResponse> login(
+            @Valid @RequestBody LoginRequest req,
+            HttpServletRequest request
+    ) {
         UserResponse user = userService.login(req);
-        AuthResponse response = new AuthResponse("로그인 성공", user);
-        return ResponseEntity.ok(response);
+
+        // 세션 생성 및 정보 저장
+        HttpSession session = request.getSession(true);
+        session.setAttribute("USER", user);
+        session.setMaxInactiveInterval(1800); // 30분 유지
+
+        return ResponseEntity.ok(new AuthResponse("로그인 성공", user));
+    }
+
+    // 4. 세션 확인 (로그인 유지용)
+    @GetMapping("/check")
+    public ResponseEntity<UserResponse> checkSession(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("USER") == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok((UserResponse) session.getAttribute("USER"));
+    }
+
+    // 5. 내 정보 가져오기 (마이페이지)
+    @GetMapping("/users/me")
+    public ResponseEntity<UserResponse> getMyInfo(HttpServletRequest request) {
+        return checkSession(request); // checkSession과 동일한 로직
+    }
+
+    // 6. 내가 쓴 글 목록
+    @GetMapping("/users/me/posts")
+    public ResponseEntity<List<MyPostDto>> getMyPosts(HttpServletRequest request) {
+        Long userId = getUserIdFromSession(request);
+        return ResponseEntity.ok(userService.getMyPosts(userId));
+    }
+
+    // 7. 내가 쓴 댓글 목록
+    @GetMapping("/users/me/comments")
+    public ResponseEntity<List<MyCommentDto>> getMyComments(HttpServletRequest request) {
+        Long userId = getUserIdFromSession(request);
+        return ResponseEntity.ok(userService.getMyComments(userId));
+    }
+
+    // 8. 비밀번호 변경
+    @PatchMapping("/users/me/password")
+    public ResponseEntity<Void> changePassword(
+            @RequestBody PasswordChangeRequest req,
+            HttpServletRequest request
+    ) {
+        Long userId = getUserIdFromSession(request);
+        // 서비스 호출 (현재 비번 검사 -> 새 비번 암호화 저장)
+        userService.changePassword(userId, req.currentPassword(), req.newPassword());
+
+        return ResponseEntity.ok().build();
+    }
+
+    // --- Helper Method ---
+    // 세션에서 유저 ID를 꺼내거나 없으면 401 에러를 던지는 메서드
+    private Long getUserIdFromSession(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("USER") == null) {
+            throw new IllegalArgumentException("로그인이 필요합니다."); // GlobalExceptionHandler에서 401/400 처리 필요
+            // 또는 여기서 바로 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+        UserResponse user = (UserResponse) session.getAttribute("USER");
+        return user.id();
     }
 }
-

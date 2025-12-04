@@ -2,9 +2,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "./Header.css";
-import Footer from "./Footer";       // 🔥 추가
+import Footer from "./Footer";
+import { useAuth } from "../contexts/AuthContext";
 
-const Header = ({ isLoggedIn, logout }) => {
+const Header = () => {
+    const { isLoggedIn, logout, user } = useAuth();
+
   return (
     <>
       <header className="header">
@@ -57,16 +60,16 @@ const Header = ({ isLoggedIn, logout }) => {
                 내 정보
               </Link>
 
-              <a
-                href="#logout"
-                className="auth-btn"
-                onClick={(e) => {
-                  e.preventDefault();
-                  logout();
-                }}
-              >
-                로그아웃
-              </a>
+                <Link
+                    to="/"
+                    className="auth-btn"
+                    onClick={(e) => {
+                        e.preventDefault(); // 링크 이동 막고
+                        logout(); // 로그아웃 함수 실행
+                    }}
+                >
+                    로그아웃
+                </Link>
             </>
           )}
         </div>

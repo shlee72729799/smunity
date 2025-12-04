@@ -1,25 +1,31 @@
-
 spring:
-  # H2 Database ??
   datasource:
-    driver-class-name: org.h2.Driver
-    url: ${SPRING_DATASOURCE_URL:jdbc:h2:mem:test}   # H2 DB ?? ?? (In-Memory Mode)
-    #url: ${SPRING_DATASOURCE_URL_FILE:jdbc:h2:~/test}    # H2 DB ?? ?? (Embedded Mode)
-    username: ${SPRING_DATASOURCE_USERNAME:user}        # H2 DB ?? ID (??? ??)
-    password: ${SPRING_DATASOURCE_PASSWORD:12345678}        # H2 DB ?? PW (??? ??)
+    url: jdbc:mysql://localhost:3306/sm_db?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: root
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
-  # H2 Console ??
-  h2:
-    console: # H2 DB? ??? ??? ? ?? ??
-      enabled: true           # H2 Console ?? ??
-      path: /h2-console       # H2 Console ?? ??
-
-  # JPA ??
   jpa:
     hibernate:
-      ddl-auto: create        # DB ??? ?? (none, create, create-drop, update, validate)
-    open-in-view: false       # JPA open-in-view ?? ??
+      ddl-auto: update      # 개발 중엔 update, 배포 땐 validate 추천
     properties:
       hibernate:
-        format_sql: true      # ?? ?? ?? (??)
-        show_sql: true        # ?? ?? ?? 
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  # 이메일 전송 설정 (Gmail 기준)
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: kyjhcw@gmail.com
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000

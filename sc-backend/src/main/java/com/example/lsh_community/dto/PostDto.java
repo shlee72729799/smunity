@@ -1,8 +1,7 @@
 package com.example.lsh_community.dto;
 
 import com.example.lsh_community.domain.Post;
-
-import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public record PostDto(
         Long id,
@@ -12,11 +11,12 @@ public record PostDto(
         long viewCount,
         long likeCount,
         long commentCount,
-        LocalDateTime createdAt
+        String createdAt,
+        boolean hasLiked // 내가 좋아요 눌렀는지 여부
 ) {
-    public static PostDto from(Post p) {
+    // 상세 조회용
+    public static PostDto from(Post p, boolean hasLiked) {
         String code = (p.getBoard() != null) ? p.getBoard().getCode() : null;
-
         return new PostDto(
                 p.getId(),
                 code,
@@ -25,7 +25,13 @@ public record PostDto(
                 p.getViewCount(),
                 p.getLikeCount(),
                 p.getCommentCount(),
-                p.getCreatedAt()
+                p.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                hasLiked
         );
+    }
+
+    // 목록 조회용
+    public static PostDto from(Post p) {
+        return from(p, false);
     }
 }

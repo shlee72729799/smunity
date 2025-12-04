@@ -35,4 +35,8 @@ public class UserEntity {
         this.password = password;
         this.name = name;
     }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }

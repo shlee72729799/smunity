@@ -168,19 +168,36 @@
 
 /* 로그인 링크 */
 .login-link {
-  text-align: center;
-  margin-top: 1.5rem;
-  color: #666;
+    text-align: center;
+    margin-top: 1.5rem;
+    color: #666;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
 }
 
 .login-link a {
-  color: #4a6bff;
-  text-decoration: none;
-  font-weight: 600;
+    color: #4b6cff;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
 }
 
 .login-link a:hover {
-  text-decoration: underline;
+    color: #2b4fff; /* 마우스 올렸을 때 진해짐 */
+    text-decoration: underline;
+}
+
+.login-link .gray-link {
+    color: #999; /* 회색 */
+    font-weight: 500; /* 로그인 버튼보다 조금 얇게 (선택사항) */
+}
+
+.login-link .gray-link:hover {
+    color: #555; /* 마우스 올리면 진한 회색 */
+    text-decoration: underline;
 }
 
 /* 모바일 대응 */
@@ -210,3 +227,49 @@
     transform: translateY(0);
   }
 }
+
+/* =========================================
+   이메일 인증 버튼 및 레이아웃 관련
+   =========================================
+*/
+.input-with-button {
+    display: flex;
+    gap: 8px;
+}
+
+
+.input-with-button input {
+    flex: 1;
+}
+
+/* 인증 버튼 스타일 */
+.verify-btn {
+    padding: 0 16px;
+    background-color: #4b6cff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.2s ease;
+}
+
+.verify-btn:hover {
+    background-color: #3b5bdb;
+}
+
+.verify-btn:disabled {
+    background-color: #a0a0a0;
+    cursor: not-allowed;
+}
+
+.helper-text {
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 4px;
+    margin-left: 2px;
+}
+
+
