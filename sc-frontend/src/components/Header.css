@@ -1,0 +1,118 @@
+/* 상단 전체 헤더 */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #2b4fff;
+  color: white;
+  padding: 10px 24px;
+  height: 60px;
+}
+
+/* 왼쪽: 로고 + smunity */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-image {
+  height: 24px; /* 글씨와 거의 같은 크기 */
+  width: auto;
+}
+
+.logo-title {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* 가운데 ticker */
+.header-center {
+  flex: 1;
+  text-align: center;
+  overflow: hidden;
+}
+
+.ticker {
+  display: inline-block;
+  white-space: nowrap;
+  animation: scroll 12s linear infinite;
+}
+
+.ticker span {
+  margin-right: 60px;
+}
+
+@keyframes scroll {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* 오른쪽 버튼 영역 */
+.header-right {
+  display: flex;
+  gap: 10px;
+}
+
+.auth-btn {
+  color: white;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: background 0.3s;
+}
+
+.auth-btn:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* 로고 전체(이미지 + 글자) 클릭용 링크 스타일 */
+.header-logo-link {
+  text-decoration: none; /* 밑줄 제거 */
+  color: inherit;        /* 글자색 기존 그대로 */
+  cursor: pointer;
+}
+
+/* ============================= */
+/* 세로 인기글 티커 애니메이션 */
+/* ============================= */
+
+.ticker-vertical {
+  height: 24px; /* 한 줄 높이 */
+  overflow: hidden;
+  position: relative;
+}
+
+.ticker-vertical ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  animation: slide-up 10s linear infinite;
+}
+
+.ticker-vertical li {
+  height: 24px;
+  line-height: 24px;
+  color: #fff;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+/* 10줄 기준으로 위로 올라가며 반복 */
+@keyframes slide-up {
+  0% { transform: translateY(0); }
+  10% { transform: translateY(-24px); }
+  20% { transform: translateY(-48px); }
+  30% { transform: translateY(-72px); }
+  40% { transform: translateY(-96px); }
+  50% { transform: translateY(-120px); }
+  60% { transform: translateY(-144px); }
+  70% { transform: translateY(-168px); }
+  80% { transform: translateY(-192px); }
+  90% { transform: translateY(-216px); }
+  100% { transform: translateY(0); }
+}
+
