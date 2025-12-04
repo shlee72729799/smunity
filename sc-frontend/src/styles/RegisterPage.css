@@ -1,0 +1,212 @@
+.register-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: linear-gradient(135deg, #2b4fff 0%, #9cb3ff 100%);
+}
+
+/* 회원가입 박스 전체 */
+.register-container {
+  background: white;
+  border-radius: 16px;
+  padding: 3rem;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  animation: fadeIn 0.6s ease;
+}
+
+/* 로고 아이콘 */
+.register-icon {
+  font-size: 4rem;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+/* 제목 */
+.register-container h1 {
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.logo-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 부제목 */
+.subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+/* 안내 박스 */
+.instruction-banner {
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  color: #666;
+  margin-bottom: 2rem;
+  font-size: 0.9rem;
+}
+
+/* 입력 폼 */
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+/* 인풋 */
+.form-group input {
+  padding: 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s, box-shadow 0.2s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #4a6bff;
+  box-shadow: 0 0 0 2px rgba(74, 107, 255, 0.2);
+}
+
+/* 이메일 입력 */
+.email-input-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.email-input-group input {
+  flex: 1;
+}
+
+.email-domain {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* 인증메일 버튼 */
+.send-btn {
+  padding: 0.8rem 1.5rem;
+  background: #4a6bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+.send-btn:hover {
+  background: #364bd8;
+}
+
+/* 인증번호 */
+.verification-input-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.verification-input-group input {
+  flex: 1;
+}
+
+.verify-btn {
+  padding: 0.8rem 1.5rem;
+  background: #4a6bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+.verify-btn:hover {
+  background: #364bd8;
+}
+
+/* 제출 버튼 */
+.submit-btn {
+  padding: 1rem;
+  background: #95a5a6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+  margin-top: 1rem;
+}
+
+.submit-btn:hover {
+  background: #7f8c8d;
+  transform: translateY(-2px);
+}
+
+/* 로그인 링크 */
+.login-link {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: #666;
+}
+
+.login-link a {
+  color: #4a6bff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.login-link a:hover {
+  text-decoration: underline;
+}
+
+/* 모바일 대응 */
+@media (max-width: 600px) {
+  .register-container {
+    padding: 2rem;
+  }
+
+  .email-input-group {
+    flex-direction: column;
+  }
+
+  .send-btn,
+  .verify-btn {
+    width: 100%;
+  }
+}
+
+/* 애니메이션 효과 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
