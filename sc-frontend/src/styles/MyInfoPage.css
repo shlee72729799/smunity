@@ -183,5 +183,7 @@
     color: white;
     font-size: 11px;
     cursor: pointer;
+
+    margin-left: 4px;
 }
 .myinfo-delete-btn:hover { background: #fa5252; }

@@ -206,22 +206,28 @@ function DetailPage() {
                         ) : (
                             comments.map((c) => (
                                 <div key={c.id} className="comment-item">
-                                    <div className="comment-header">
-                                        <span className="comment-writer">{c.writerName}</span>
-                                        <span className="comment-date">{c.createdAt}</span>
 
-                                        {/* 수정/삭제 버튼을 작성자에게만 표시 */}
+                                    {/* 헤더 시작 */}
+                                    <div className="comment-header">
+
+                                        {/* [왼쪽 그룹] 작성자 이름 + 날짜 */}
+                                        <div className="comment-info-left">
+                                            <span className="comment-writer">{c.writerName}</span>
+                                            <span className="comment-date">{c.createdAt}</span>
+                                        </div>
+
+                                        {/* [오른쪽 그룹] 수정/삭제 버튼 (본인일 때만) */}
                                         {c.isOwner && (
-                                            <div style={{marginLeft: 'auto', display: 'flex', gap: '8px'}}>
+                                            <div className="comment-actions-right">
                                                 <button
+                                                    className="comment-edit-btn"
                                                     onClick={() => handleUpdateComment(c.id, c.content)}
-                                                    style={{ background: 'none', border: 'none', color: '#4b6cff', fontSize: '13px', cursor: 'pointer' }}
                                                 >
                                                     수정
                                                 </button>
                                                 <button
+                                                    className="comment-delete-btn"
                                                     onClick={() => handleDeleteComment(c.id)}
-                                                    style={{ background: 'none', border: 'none', color: '#ff4b4b', fontSize: '13px', cursor: 'pointer' }}
                                                 >
                                                     삭제
                                                 </button>
