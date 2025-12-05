@@ -14,9 +14,9 @@ public record CommentDto(
         return new CommentDto(
                 c.getId(),
                 c.getContent(),
-                c.getAuthor().getName(), // 작성자 이름
+                c.getAuthor().getNickname(),
                 c.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
-                c.getAuthor().getId().equals(currentUserId) // 내 댓글이면 true
+                c.getAuthor().getId().equals(currentUserId)
         );
     }
 }

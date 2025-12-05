@@ -8,6 +8,14 @@
     background: linear-gradient(135deg, #2b4fff 0%, #9cb3ff 100%);
 }
 
+/* 안내 문구 스타일 */
+.helper-text {
+    font-size: 0.85rem;
+    color: #888;
+    margin-top: 4px;
+    margin-left: 2px;
+}
+
 .login-container {
     background: white;
     border-radius: 16px;

@@ -82,7 +82,7 @@ const RegisterPage = () => {
                 username: usernameExtracted,    // 추출한 학번을 아이디로 사용
                 email: formData.email,          // 전체 이메일
                 password: formData.password,
-                name: formData.nickname,
+                nickname: formData.nickname,
                 verificationCode: formData.verificationCode // 인증 코드 포함
             }
 

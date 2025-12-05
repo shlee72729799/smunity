@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import { useAuth } from "../contexts/AuthContext";
-// ✅ API 함수들 import (client.js에 모두 정의되어 있어야 함)
+
 import {
     fetchMyPosts, fetchMyComments,
     deletePost, updateComment, deleteComment,
@@ -74,6 +74,20 @@ function MyInfoPage() {
         }
     };
 
+    // 게시글 수정 핸들러 (글쓰기 페이지로 이동하며 상태 전달)
+    const handleEditPost = (post) => {
+        const boardPath = post.boardCode ? post.boardCode.toLowerCase() : 'free';
+
+        // NewPostPage로 이동하며 'edit' 모드와 게시글 ID를 state로 전달
+        navigate(`/board/${boardPath}/new`, {
+            state: {
+                mode: 'edit',
+                postId: post.id,
+                boardCode: post.boardCode,
+            }
+        });
+    };
+
     // 2. 게시글 삭제 핸들러
     const handleDeletePost = async (postId) => {
         if (!window.confirm("정말 삭제하시겠습니까?")) return;
@@ -85,29 +99,17 @@ function MyInfoPage() {
         }
     };
 
-    // 3. 댓글 수정 핸들러
-    const handleEditComment = async (commentId, oldContent) => {
-        const newContent = prompt("수정할 내용을 입력하세요:", oldContent);
-        if (newContent === null || newContent === oldContent || !newContent.trim()) return;
-
-        try {
-            await updateComment(commentId, newContent);
-            // 목록 갱신: 내용만 바꿔치기
-            setMyComments(prev => prev.map(c => c.id === commentId ? {...c, content: newContent} : c));
-        } catch (e) {
-            alert("수정 실패: 본인의 댓글만 수정할 수 있습니다.");
-        }
+    // 3. 댓글 수정 핸들러 (상세 페이지로 이동)
+    const handleEditComment = (comment) => {
+        // 해당 댓글이 달린 게시글 상세 페이지로 이동
+        navigate(`/detail/${comment.postId}`);
     };
 
-    // 4. 댓글 삭제 핸들러
-    const handleDeleteComment = async (commentId) => {
-        if (!window.confirm("댓글을 삭제하시겠습니까?")) return;
-        try {
-            await deleteComment(commentId);
-            setMyComments(prev => prev.filter(c => c.id !== commentId));
-        } catch (e) {
-            alert("삭제 실패: 본인의 댓글만 삭제할 수 있습니다.");
-        }
+    // 4. 댓글 삭제 핸들러 (상세 페이지로 이동)
+    const handleDeleteComment = (comment) => {
+        if (!window.confirm("댓글 삭제는 해당 게시글 상세 페이지에서 가능합니다. 이동하시겠습니까?")) return;
+        // 상세 페이지로 이동
+        navigate(`/detail/${comment.postId}`);
     };
 
     // 5. 회원 탈퇴 핸들러
@@ -144,7 +146,7 @@ function MyInfoPage() {
                     <div className="myinfo-row">
                         <span className="myinfo-label">계정</span>
                         <span className="myinfo-value">
-              {user ? `${user.name} | 상명대학교 | ${user.username}` : "정보 없음"}
+              {user ? `${user.nickname} | 상명대학교 | ${user.username}` : "정보 없음"}
             </span>
                     </div>
                     <div className="myinfo-row">
@@ -183,7 +185,7 @@ function MyInfoPage() {
                         <span className="myinfo-value">{user ? user.email : "정보 없음"}</span>
                     </div>
 
-                    {/* ✅ 회원 탈퇴 버튼 (맨 아래) */}
+                    {/* 회원 탈퇴 버튼 */}
                     <div className="myinfo-row" style={{ marginTop: '20px' }}>
                         <span className="myinfo-label" style={{color: '#ff6b6b'}}>회원 탈퇴</span>
                         <button
@@ -201,7 +203,7 @@ function MyInfoPage() {
                     <p style={{ color: "#fff", textAlign: "center", padding: "20px" }}>불러오는 중...</p>
                 ) : (
                     <>
-                        {/* 작성글 관리 카드 */}
+                        {/* 작성글 관리 섹션 */}
                         <section className="myinfo-card">
                             <div className="myinfo-card-header">
                                 <h2 className="myinfo-card-title">작성글 관리</h2>
@@ -209,25 +211,26 @@ function MyInfoPage() {
                             </div>
                             <ul className="myinfo-list">
                                 {myPosts.length === 0 ? (
-                                    <li className="myinfo-empty">작성한 글이 없습니다.</li>
+                                    <li className="myinfo-empty" style={{textAlign: 'center', color: '#999', padding: '10px 0'}}>
+                                        작성한 글이 없습니다.
+                                    </li>
                                 ) : (
                                     myPosts.map((post) => (
                                         <li key={post.id} className="myinfo-list-item">
                                             <Link to={`/detail/${post.id}`} className="myinfo-item-main">
-                        <span className="myinfo-item-title">
-                          <span style={{ fontWeight: "normal", color: "#666", marginRight: "6px" }}>
-                            [{post.boardName}]
-                          </span>
-                            {post.title}
-                        </span>
+                                                <span className="myinfo-item-title">
+                                                    <span style={{ fontWeight: "normal", color: "#666", marginRight: "6px" }}>
+                                                      [{post.boardName}]
+                                                    </span>
+                                                    {post.title}
+                                                </span>
                                                 <span style={{ fontSize: "12px", color: "#888", marginLeft: "10px" }}>
-                          {post.createdAt}
-                        </span>
+                                                  {post.createdAt}
+                                                </span>
                                             </Link>
 
-                                            {/* 수정/삭제 버튼 */}
                                             <div style={{display:'flex', gap:'5px', marginLeft:'10px'}}>
-                                                <button className="myinfo-edit-btn" onClick={() => alert("수정은 상세 페이지에서 가능합니다.")}>수정</button>
+                                                <button className="myinfo-edit-btn" onClick={() => handleEditPost(post)}>수정</button>
                                                 <button className="myinfo-delete-btn" onClick={() => handleDeletePost(post.id)}>삭제</button>
                                             </div>
                                         </li>
@@ -245,26 +248,28 @@ function MyInfoPage() {
 
                             <ul className="myinfo-list">
                                 {myComments.length === 0 ? (
-                                    <li className="myinfo-empty">작성한 댓글이 없습니다.</li>
+                                    <li className="myinfo-empty" style={{textAlign: 'center', color: '#999', padding: '10px 0'}}>
+                                        작성한 댓글이 없습니다.
+                                    </li>
                                 ) : (
                                     myComments.map((comment) => (
                                         <li key={comment.id} className="myinfo-list-item">
                                             <Link to={`/detail/${comment.postId}`} className="myinfo-item-main">
-                        <span className="myinfo-item-title">
-                          {comment.content}
-                            <span style={{ fontSize: "12px", color: "#999", marginLeft: "6px" }}>
-                            (글: {comment.postTitle})
-                          </span>
-                        </span>
+                                                <span className="myinfo-item-title">
+                                                  {comment.content}
+                                                    <span style={{ fontSize: "12px", color: "#999", marginLeft: "6px" }}>
+                                                    (글: {comment.postTitle})
+                                                  </span>
+                                                </span>
                                                 <span style={{ fontSize: "12px", color: "#888", marginLeft: "10px" }}>
-                          {comment.createdAt}
-                        </span>
+                                                  {comment.createdAt}
+                                                </span>
                                             </Link>
 
-                                            {/* 수정/삭제 버튼 */}
+                                            {/* ✅ 버튼 연결: 상세 페이지로 이동만 수행 */}
                                             <div style={{display:'flex', gap:'5px', marginLeft:'10px'}}>
-                                                <button className="myinfo-edit-btn" onClick={() => handleEditComment(comment.id, comment.content)}>수정</button>
-                                                <button className="myinfo-delete-btn" onClick={() => handleDeleteComment(comment.id)}>삭제</button>
+                                                <button className="myinfo-edit-btn" onClick={() => handleEditComment(comment)}>수정</button>
+                                                <button className="myinfo-delete-btn" onClick={() => handleDeleteComment(comment)}>삭제</button>
                                             </div>
                                         </li>
                                     ))

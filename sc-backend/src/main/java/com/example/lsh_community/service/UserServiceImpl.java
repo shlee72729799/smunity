@@ -18,6 +18,7 @@ import java.util.List;
 import com.example.lsh_community.repository.PostLikeRepository;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -53,7 +54,7 @@ public class UserServiceImpl implements UserService {
                 .username(req.username())
                 .password(encodedPassword)
                 .email(req.email())
-                .name(req.name() != null ? req.name() : req.username())
+                .nickname(req.nickname() != null ? req.nickname() : req.username())
                 .build();
 
         UserEntity saved = userRepository.save(user);
@@ -95,7 +96,7 @@ public class UserServiceImpl implements UserService {
                 entity.getId(),
                 entity.getUsername(),
                 entity.getEmail(),
-                entity.getName()
+                entity.getNickname()
         );
     }
 
@@ -110,7 +111,7 @@ public class UserServiceImpl implements UserService {
                         p.getId(),
                         p.getTitle(),
                         p.getBoard() != null ? p.getBoard().getName() : "게시판",
-                        p.getBoard() != null ? p.getBoard().getCode() : "FREE", // ✅ [추가] 코드 매핑
+                        p.getBoard() != null ? p.getBoard().getCode() : "FREE",
                         p.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                 ))
                 .toList();

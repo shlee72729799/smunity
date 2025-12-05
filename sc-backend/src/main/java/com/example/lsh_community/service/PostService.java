@@ -1,5 +1,6 @@
 package com.example.lsh_community.service;
 
+import com.example.lsh_community.domain.Comment;
 import com.example.lsh_community.domain.Board;
 import com.example.lsh_community.domain.Post;
 import com.example.lsh_community.domain.PostLike;
@@ -10,6 +11,7 @@ import com.example.lsh_community.repository.BoardRepository;
 import com.example.lsh_community.repository.PostLikeRepository;
 import com.example.lsh_community.repository.PostRepository;
 import com.example.lsh_community.repository.UserRepository;
+import com.example.lsh_community.repository.CommentRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,15 +26,18 @@ public class PostService {
     private final BoardRepository boardRepository;
     private final UserRepository userRepository;
     private final PostLikeRepository postLikeRepository;
+    private final CommentRepository commentRepository;
 
     public PostService(PostRepository postRepository,
                        BoardRepository boardRepository,
                        UserRepository userRepository,
-                       PostLikeRepository postLikeRepository) {
+                       PostLikeRepository postLikeRepository,
+                       CommentRepository commentRepository) {
         this.postRepository = postRepository;
         this.boardRepository = boardRepository;
         this.userRepository = userRepository;
         this.postLikeRepository = postLikeRepository;
+        this.commentRepository = commentRepository;
     }
 
     @Transactional
@@ -116,10 +121,20 @@ public class PostService {
     @Transactional
     public void deletePost(Long postId, Long userId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("게시글 없음"));
-        if (!post.getAuthor().getId().equals(userId)) {
+                .orElseThrow(() -> new IllegalArgumentException("게시글이 없습니다."));
+
+        UserEntity author = post.getAuthor();
+
+        // 1. 권한 체크 (NULL 체크 포함, 기존 수정 로직 유지)
+        if (author != null && !author.getId().equals(userId)) {
             throw new IllegalArgumentException("작성자만 삭제할 수 있습니다.");
         }
+
+        // 2. 종속 데이터 먼저 삭제 (FK 제약 해소)
+        commentRepository.deleteAllByPost(post);
+        postLikeRepository.deleteAllByPost(post);
+
+        // 3. 게시글 최종 삭제
         postRepository.delete(post);
     }
 }

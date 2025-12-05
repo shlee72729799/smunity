@@ -43,7 +43,7 @@ const LoginPage = () => {
         } catch (err) {
             console.error(err);
 
-            // ✅ [수정된 부분] 백엔드 에러 메시지 파싱
+            // 백엔드 에러 메시지 파싱
             const data = err.response?.data;
             const errorMsg = data?.error || data?.message || err.message;
 
@@ -77,6 +77,8 @@ const LoginPage = () => {
                             placeholder="아이디를 입력하세요"
                             autoFocus
                         />
+                        {/* ✅ [추가] 안내 문구 */}
+                        <p className="helper-text">학번(예: 202310123)을 입력하세요.</p>
                     </div>
 
                     <div className="form-group">

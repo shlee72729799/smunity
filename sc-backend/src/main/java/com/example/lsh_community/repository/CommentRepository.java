@@ -15,4 +15,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     // 특정 유저(회원탈퇴)가 쓴 모든 댓글 삭제
     void deleteAllByAuthor(UserEntity author);
+
+    // 특정 게시글에 달린 댓글 모두 삭제
+    void deleteAllByPost(Post post);
 }

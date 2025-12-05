@@ -25,6 +25,7 @@ const NewPostPage = () => {
     const isEditMode = state.mode === 'edit';
     const editPostId = state.postId;
 
+    //초기 상태 설정
     const boardCodeFromUrl = resolveBoardCode(type);
     const initialBoardCode = state.boardCode || boardCodeFromUrl || "FREE";
 
@@ -34,16 +35,19 @@ const NewPostPage = () => {
     const [error, setError] = useState("");
     const [submitting, setSubmitting] = useState(false);
 
-    // 수정 모드일 경우, 내용을 불러옴 (목록에는 내용이 없었으므로)
+    // 수정 모드일 경우, 글 내용을 API로 가져와 폼을 채움
     useEffect(() => {
-        if (isEditMode && editPostId && !content) {
+        if (isEditMode && editPostId) {
             fetchPostDetail(editPostId)
                 .then(data => {
                     setTitle(data.title);
                     setContent(data.content);
-                    setBoardCode(data.boardCode);
+                    if (data.boardCode) setBoardCode(data.boardCode);
                 })
-                .catch(err => console.error("기존 글 불러오기 실패", err));
+                .catch(err => {
+                    setError("수정할 게시글 정보를 불러오는 데 실패했습니다.");
+                    console.error("Fetch Edit Post Failed:", err);
+                });
         }
     }, [isEditMode, editPostId]);
 
@@ -62,7 +66,7 @@ const NewPostPage = () => {
             if (isEditMode) {
                 // 수정 API 호출
                 await updatePost(editPostId, title, content);
-                alert("수정되었습니다.");
+                alert("게시글이 성공적으로 수정되었습니다.");
                 navigate(`/detail/${editPostId}`); // 상세 페이지로 이동
             } else {
                 // 작성 API 호출

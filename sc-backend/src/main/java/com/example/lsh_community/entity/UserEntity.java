@@ -26,17 +26,21 @@ public class UserEntity {
     private String password;
 
     @Column(nullable = false, length = 20)
-    private String name;
+    private String nickname;
 
     @Builder
-    public UserEntity(String username, String email, String password, String name) {
+    public UserEntity(String username, String email, String password, String nickname) {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.name = name;
+        this.nickname = nickname;
     }
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 }

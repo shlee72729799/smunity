@@ -3,11 +3,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { useAuth } from "../contexts/AuthContext";
-import { fetchPostDetail, likePost, fetchComments, createComment, deleteComment } from "../api/client";
+import { fetchPostDetail, likePost, fetchComments, createComment, updateComment, deleteComment } from "../api/client";
 import "../styles/DetailPage.css";
 
 function DetailPage() {
-    const { isLoggedIn, logout } = useAuth();
+    const { isLoggedIn, logout, user } = useAuth(); // user 객체 필요
     const { id } = useParams();
     const navigate = useNavigate();
 
@@ -17,11 +17,45 @@ function DetailPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    // 좋아요 상태
     const [hasLiked, setHasLiked] = useState(false);
     const [isLiking, setIsLiking] = useState(false);
 
-    // 초기 데이터 로딩
+    // 댓글 수정 핸들러
+    const handleUpdateComment = async (commentId, oldContent) => {
+        if (!user) return alert("로그인 상태를 확인해 주세요.");
+
+        const newContent = prompt("수정할 내용을 입력하세요:", oldContent);
+        if (newContent === null || newContent === oldContent || !newContent.trim()) return;
+
+        try {
+            await updateComment(commentId, newContent);
+            // 목록 새로고침 (업데이트된 내용 반영)
+            const updated = await fetchComments(id);
+            setComments(updated);
+            alert("댓글이 수정되었습니다.");
+        } catch (e) {
+            alert("수정 실패: 본인의 댓글만 수정할 수 있습니다.");
+        }
+    };
+
+    // 댓글 삭제 핸들러
+    const handleDeleteComment = async (commentId) => {
+        if (!user) return alert("로그인 상태를 확인해 주세요.");
+        if (!window.confirm("댓글을 삭제하시겠습니까?")) return;
+
+        try {
+            await deleteComment(commentId);
+            // 목록 갱신
+            const updated = await fetchComments(id);
+            setComments(updated);
+            alert("댓글이 삭제되었습니다.");
+        } catch (e) {
+            alert("삭제 실패: 본인의 댓글만 삭제할 수 있습니다.");
+        }
+    };
+
+
+    // 초기 데이터 로딩 (게시글 + 댓글 병렬 조회)
     useEffect(() => {
         async function loadData() {
             try {
@@ -34,7 +68,6 @@ function DetailPage() {
                 setPost(postData);
                 setComments(commentsData || []);
 
-                // 백엔드가 보내준 hasLiked 값으로 버튼 상태 설정
                 if (postData && typeof postData.hasLiked === 'boolean') {
                     setHasLiked(postData.hasLiked);
                 }
@@ -49,7 +82,7 @@ function DetailPage() {
         loadData();
     }, [id]);
 
-    // 좋아요 핸들러 (토글)
+    // 좋아요 핸들러
     const handleLike = async () => {
         if (!isLoggedIn) return alert("로그인이 필요합니다.");
         if (isLiking) return;
@@ -59,7 +92,7 @@ function DetailPage() {
             const newCount = await likePost(id);
 
             setPost((prev) => prev ? { ...prev, likeCount: newCount } : prev);
-            setHasLiked(!hasLiked); // 버튼 상태 반전
+            setHasLiked(!hasLiked);
         } catch (e) {
             alert("좋아요 처리 실패");
         } finally {
@@ -67,6 +100,7 @@ function DetailPage() {
         }
     };
 
+    // 댓글 작성 핸들러
     const handleAddComment = async () => {
         if (!isLoggedIn) return alert("로그인이 필요합니다.");
         if (!commentText.trim()) return alert("내용을 입력해주세요.");
@@ -79,17 +113,6 @@ function DetailPage() {
         } catch (e) {
             console.error(e);
             alert("댓글 작성 실패");
-        }
-    };
-
-    const handleDeleteComment = async (commentId) => {
-        if (!window.confirm("댓글을 삭제하시겠습니까?")) return;
-        try {
-            await deleteComment(commentId);
-            const updated = await fetchComments(id);
-            setComments(updated);
-        } catch (e) {
-            alert("본인의 댓글만 삭제할 수 있습니다.");
         }
     };
 
@@ -126,13 +149,18 @@ function DetailPage() {
             <div className="banner-spacing" />
 
             <main className="detail-container">
+                {/* 게시글 카드 */}
                 <section className="detail-card">
                     <header className="detail-post-header">
                         <div className="detail-title-row">
                             <h1 className="detail-post-title">{post.title}</h1>
                             <button className="detail-back-btn" onClick={() => navigate(-1)}>← 뒤로가기</button>
                         </div>
+                        {/* 작성일 정보 추가 */}
                         <div className="detail-post-meta-row">
+              <span style={{ marginRight: '16px', fontWeight: 'bold' }}>
+                  작성일: {post.createdAt}
+              </span>
                             <span>조회수: {post.viewCount ?? 0}</span>
                             <span>좋아요: {post.likeCount ?? 0}</span>
                             <span>댓글: {comments.length}</span>
@@ -156,6 +184,7 @@ function DetailPage() {
                     </div>
                 </section>
 
+                {/* 댓글 영역 */}
                 <section className="comment-section">
                     <h2 className="section-title">댓글 작성</h2>
                     <div className="comment-form">
@@ -177,17 +206,26 @@ function DetailPage() {
                         ) : (
                             comments.map((c) => (
                                 <div key={c.id} className="comment-item">
-                                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "13px", color: "#666" }}>
-                    <span>
-                      <strong>{c.writerName}</strong> · <span style={{ fontSize: "12px", color: "#999" }}>{c.createdAt}</span>
-                    </span>
+                                    <div className="comment-header">
+                                        <span className="comment-writer">{c.writerName}</span>
+                                        <span className="comment-date">{c.createdAt}</span>
+
+                                        {/* 수정/삭제 버튼을 작성자에게만 표시 */}
                                         {c.isOwner && (
-                                            <button
-                                                onClick={() => handleDeleteComment(c.id)}
-                                                style={{ border: "none", background: "transparent", color: "#ff4b4b", cursor: "pointer", fontSize: "12px" }}
-                                            >
-                                                삭제
-                                            </button>
+                                            <div style={{marginLeft: 'auto', display: 'flex', gap: '8px'}}>
+                                                <button
+                                                    onClick={() => handleUpdateComment(c.id, c.content)}
+                                                    style={{ background: 'none', border: 'none', color: '#4b6cff', fontSize: '13px', cursor: 'pointer' }}
+                                                >
+                                                    수정
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteComment(c.id)}
+                                                    style={{ background: 'none', border: 'none', color: '#ff4b4b', fontSize: '13px', cursor: 'pointer' }}
+                                                >
+                                                    삭제
+                                                </button>
+                                            </div>
                                         )}
                                     </div>
                                     <p className="comment-content">{c.content}</p>
