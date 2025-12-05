@@ -86,8 +86,7 @@ const MainPage = () => {
                 {post.title}
               </Link>
               <span className="post-meta">
-                ❤️ {post.likeCount ?? 0} · 👁 {post.viewCount ?? 0} · 💬{" "}
-                {post.commentCount ?? 0}
+                ❤️ {post.likeCount ?? 0} · 👁 {post.viewCount ?? 0} · 💬 {post.commentCount ?? 0}
               </span>
             </li>
           ))

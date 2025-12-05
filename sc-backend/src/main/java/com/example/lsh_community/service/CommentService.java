@@ -31,6 +31,8 @@ public class CommentService {
 
         Comment comment = new Comment(post, user, content);
         commentRepository.save(comment);
+
+        post.increaseCommentCount();
     }
 
     // 댓글 목록 조회
@@ -66,6 +68,9 @@ public class CommentService {
         if (!comment.getAuthor().getId().equals(userId)) {
             throw new IllegalArgumentException("작성자만 삭제할 수 있습니다.");
         }
+
+        Post post = comment.getPost();
+        post.decreaseCommentCount();
 
         commentRepository.delete(comment);
     }

@@ -58,4 +58,16 @@ public class Post {
         this.title = title;
         this.content = content;
     }
+
+    // 댓글 수 증가 메서드
+    public void increaseCommentCount() {
+        this.commentCount++;
+    }
+
+    // 댓글 수 감소 메서드
+    public void decreaseCommentCount() {
+        if (this.commentCount > 0) {
+            this.commentCount--;
+        }
+    }
 }

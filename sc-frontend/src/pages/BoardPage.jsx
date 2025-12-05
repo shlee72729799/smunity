@@ -145,8 +145,7 @@ const BoardPage = () => {
                     >
                       <span className="board-post-title">{post.title}</span>
                       <span className="board-post-meta">
-                        ❤️ {post.likeCount ?? 0} · 👁 {post.viewCount ?? 0} · 💬{" "}
-                        {post.commentCount ?? 0}
+                        ❤️ {post.likeCount ?? 0} · 👁 {post.viewCount ?? 0} · 💬 {post.commentCount ?? 0}
                       </span>
                     </Link>
                   </li>
