@@ -15,6 +15,8 @@ import com.example.lsh_community.dto.MyPostDto;
 import com.example.lsh_community.dto.MyCommentDto;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import com.example.lsh_community.repository.PostLikeRepository;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 @Service
 @RequiredArgsConstructor
@@ -23,9 +25,10 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final EmailService emailService; // ✅ [추가] 이메일 검증을 위해 주입
+    private final EmailService emailService; // 이메일 검증을 위해 주입
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
+    private final PostLikeRepository postLikeRepository;
 
     @Override
     public UserResponse signup(SignupRequest req) {
@@ -69,6 +72,21 @@ public class UserServiceImpl implements UserService {
         }
 
         return toResponse(user);
+    }
+
+    // 회원 탈퇴 기능
+    @Override
+    public void deleteUser(Long userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        // 1. 외래키 제약조건 해소 (데이터 정리 순서: 좋아요 -> 댓글 -> 게시글)
+        postLikeRepository.deleteAllByUser(user);
+        commentRepository.deleteAllByAuthor(user);
+        postRepository.deleteAllByAuthor(user);
+
+        // 2. 유저 엔티티 최종 삭제
+        userRepository.delete(user);
     }
 
     // Helper 메서드
@@ -130,4 +148,6 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(newPassword)); // UserEntity에 setPassword 필요 (Setter 혹은 메서드 추가)
         // UserEntity에 @Setter가 없다면: public void changePassword(String pw) { this.password = pw; } 메서드 추가 필요
     }
+
+
 }

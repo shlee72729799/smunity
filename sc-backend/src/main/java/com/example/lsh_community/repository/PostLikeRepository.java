@@ -9,4 +9,8 @@ import java.util.Optional;
 public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
     // 이미 좋아요를 눌렀는지 확인
     Optional<PostLike> findByUserAndPost(UserEntity user, Post post);
+
+    // 특정 유저(회원탈퇴)가 누른 모든 좋아요 삭제
+    void deleteAllByUser(UserEntity user);
+
 }

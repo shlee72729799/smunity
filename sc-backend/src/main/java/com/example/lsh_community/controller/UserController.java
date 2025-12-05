@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Cookie;
 
 import java.net.URI;
 import java.util.List;
@@ -94,6 +96,29 @@ public class UserController {
         Long userId = getUserIdFromSession(request);
         // 서비스 호출 (현재 비번 검사 -> 새 비번 암호화 저장)
         userService.changePassword(userId, req.currentPassword(), req.newPassword());
+
+        return ResponseEntity.ok().build();
+    }
+
+    // 회원 탈퇴
+    @DeleteMapping("/users/me")
+    public ResponseEntity<Void> deleteAccount(HttpServletRequest request, HttpServletResponse response) {
+        Long userId = getUserIdFromSession(request);
+
+        // 서비스 호출 (데이터 삭제)
+        userService.deleteUser(userId);
+
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+
+        Cookie cookie = new Cookie("JSESSIONID", null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        // cookie.setSecure(true); // HTTPS 환경인 경우 필요
+        response.addCookie(cookie);
 
         return ResponseEntity.ok().build();
     }

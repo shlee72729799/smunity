@@ -16,4 +16,7 @@ public interface UserService {
     List<MyCommentDto> getMyComments(Long userId);
 
     void changePassword(Long userId, String currentPassword, String newPassword);
+
+    // 회원 탈퇴 기능
+    void deleteUser(Long userId);
 }

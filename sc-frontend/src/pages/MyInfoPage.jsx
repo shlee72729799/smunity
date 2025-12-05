@@ -2,13 +2,16 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import { useAuth } from "../contexts/AuthContext";
-// API 함수들 import
+// ✅ API 함수들 import (client.js에 모두 정의되어 있어야 함)
 import {
     fetchMyPosts, fetchMyComments,
     deletePost, updateComment, deleteComment,
-    updatePassword
+    updatePassword, deleteAccount
 } from "../api/client";
 import "../styles/MyInfoPage.css";
+
+// 인라인 스타일 (비밀번호 입력창에 사용)
+const inputStyle = { padding: '5px', borderRadius: '4px', border: '1px solid #ddd', fontSize: '13px', width: '150px' };
 
 function MyInfoPage() {
     const { isLoggedIn, logout, user } = useAuth();
@@ -17,20 +20,26 @@ function MyInfoPage() {
     const [myPosts, setMyPosts] = useState([]);
     const [myComments, setMyComments] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
 
     // 비밀번호 변경 상태
-    const [pwMode, setPwMode] = useState(false); // 변경 모드 on/off
+    const [pwMode, setPwMode] = useState(false);
     const [pwForm, setPwForm] = useState({ current: "", new: "", confirm: "" });
 
+
+    // --- 초기화 및 데이터 로딩 ---
+
+    // 1. 로그인 체크
     useEffect(() => {
         if (!isLoggedIn && !loading) navigate("/login");
     }, [isLoggedIn, loading, navigate]);
 
-    // 데이터 불러오기
+    // 2. 데이터 불러오기
     const loadData = async () => {
         if (!isLoggedIn) return;
         try {
             setLoading(true);
+            setError("");
             const [postsRes, commentsRes] = await Promise.all([
                 fetchMyPosts(),
                 fetchMyComments(),
@@ -39,6 +48,7 @@ function MyInfoPage() {
             setMyComments(commentsRes || []);
         } catch (err) {
             console.error(err);
+            setError("데이터를 불러오지 못했습니다.");
         } finally {
             setLoading(false);
         }
@@ -46,74 +56,78 @@ function MyInfoPage() {
 
     useEffect(() => { loadData(); }, [isLoggedIn]);
 
-    // --- 비밀번호 변경 핸들러 ---
+
+    // --- 핸들러 함수들 ---
+
+    // 1. 비밀번호 변경 핸들러
     const handlePwChange = async () => {
         if (pwForm.new !== pwForm.confirm) return alert("새 비밀번호가 일치하지 않습니다.");
         if (pwForm.new.length < 6) return alert("비밀번호는 6자 이상이어야 합니다.");
 
         try {
             await updatePassword(pwForm.current, pwForm.new);
-            alert("비밀번호가 변경되었습니다. 다시 로그인해주세요.");
+            alert("비밀번호가 변경되었습니다. 보안을 위해 다시 로그인해주세요.");
             logout();
             navigate("/");
         } catch (e) {
-            alert("비밀번호 변경 실패: " + (e.response?.data?.message || "오류"));
+            alert("비밀번호 변경 실패: " + (e.response?.data?.error || "오류"));
         }
     };
 
-    // --- 게시글 삭제 핸들러 ---
+    // 2. 게시글 삭제 핸들러
     const handleDeletePost = async (postId) => {
         if (!window.confirm("정말 삭제하시겠습니까?")) return;
         try {
             await deletePost(postId);
             setMyPosts(prev => prev.filter(p => p.id !== postId)); // 목록에서 즉시 제거
         } catch (e) {
-            alert("삭제 실패");
+            alert("삭제 실패: 본인의 글만 삭제할 수 있습니다.");
         }
     };
 
-    // 게시글 수정 (글쓰기 페이지로 데이터 들고 이동)
-    const handleEditPost = (post) => {
-        navigate(`/board/${post.boardCode.toLowerCase()}/new`, {
-            state: {
-                mode: 'edit',
-                postId: post.id,
-                initialTitle: post.title,
-                // 내용은 목록에 없으므로 상세 조회를 하거나, 제목만 수정하게 할 수도 있음.
-                // 여기서는 편의상 제목만 들고 가고 내용은 가서 로딩하거나 빈칸 처리
-                // (완벽하게 하려면 content도 DTO에 넣어야 하지만, 보통은 상세페이지에서 수정함)
-                initialContent: "",
-                boardCode: post.boardCode
-            }
-        });
+    // 3. 댓글 수정 핸들러
+    const handleEditComment = async (commentId, oldContent) => {
+        const newContent = prompt("수정할 내용을 입력하세요:", oldContent);
+        if (newContent === null || newContent === oldContent || !newContent.trim()) return;
+
+        try {
+            await updateComment(commentId, newContent);
+            // 목록 갱신: 내용만 바꿔치기
+            setMyComments(prev => prev.map(c => c.id === commentId ? {...c, content: newContent} : c));
+        } catch (e) {
+            alert("수정 실패: 본인의 댓글만 수정할 수 있습니다.");
+        }
     };
 
-    // --- 댓글 삭제 핸들러 ---
+    // 4. 댓글 삭제 핸들러
     const handleDeleteComment = async (commentId) => {
         if (!window.confirm("댓글을 삭제하시겠습니까?")) return;
         try {
             await deleteComment(commentId);
             setMyComments(prev => prev.filter(c => c.id !== commentId));
         } catch (e) {
-            alert("삭제 실패");
+            alert("삭제 실패: 본인의 댓글만 삭제할 수 있습니다.");
         }
     };
 
-    // --- 댓글 수정 핸들러 ---
-    const handleEditComment = async (commentId, oldContent) => {
-        const newContent = prompt("수정할 내용을 입력하세요:", oldContent);
-        if (newContent === null || newContent === oldContent) return; // 취소
-        if (!newContent.trim()) return alert("내용을 입력하세요.");
+    // 5. 회원 탈퇴 핸들러
+    const handleDeleteAccount = async () => {
+        if (!window.confirm("정말 탈퇴하시겠습니까? 모든 데이터가 영구 삭제됩니다.")) {
+            return;
+        }
 
         try {
-            await updateComment(commentId, newContent);
-            // 목록 갱신 (단순히 내용만 바꿔치기)
-            setMyComments(prev => prev.map(c => c.id === commentId ? {...c, content: newContent} : c));
+            await deleteAccount();
+            alert("회원 탈퇴가 완료되었습니다. 감사합니다.");
+            logout(); // AuthContext 상태 초기화
+            navigate("/");
         } catch (e) {
-            alert("수정 실패");
+            alert("회원 탈퇴 실패: " + (e.response?.data?.error || "오류가 발생했습니다."));
         }
     };
 
+
+    // --- UI 렌더링 ---
     return (
         <div className="main-page myinfo-page">
             <Header />
@@ -122,20 +136,23 @@ function MyInfoPage() {
             <main className="myinfo-container">
                 <h1 className="myinfo-title">내 정보</h1>
 
-                {/* 계정 정보 카드 */}
+                {error && <div className="myinfo-error" style={{color: '#ff6b6b', marginBottom: '10px'}}>{error}</div>}
+
+                {/* 계정 정보 카드 (유저 정보 표시) */}
                 <section className="myinfo-card myinfo-account-card">
+
                     <div className="myinfo-row">
                         <span className="myinfo-label">계정</span>
                         <span className="myinfo-value">
-              {user ? `${user.name} | 상명대학교` : "-"}
+              {user ? `${user.name} | 상명대학교 | ${user.username}` : "정보 없음"}
             </span>
                     </div>
                     <div className="myinfo-row">
                         <span className="myinfo-label">아이디</span>
-                        <span className="myinfo-value">{user ? user.username : "-"}</span>
+                        <span className="myinfo-value">{user ? user.username : "정보 없음"}</span>
                     </div>
 
-                    {/* 비밀번호 변경 영역 */}
+                    {/* 비밀번호 변경 UI */}
                     <div className="myinfo-row myinfo-row-password">
                         <span className="myinfo-label">비밀번호 변경</span>
                         <div className="myinfo-password-area">
@@ -163,62 +180,102 @@ function MyInfoPage() {
 
                     <div className="myinfo-row">
                         <span className="myinfo-label">E-mail</span>
-                        <span className="myinfo-value">{user ? user.email : "-"}</span>
+                        <span className="myinfo-value">{user ? user.email : "정보 없음"}</span>
+                    </div>
+
+                    {/* ✅ 회원 탈퇴 버튼 (맨 아래) */}
+                    <div className="myinfo-row" style={{ marginTop: '20px' }}>
+                        <span className="myinfo-label" style={{color: '#ff6b6b'}}>회원 탈퇴</span>
+                        <button
+                            className="myinfo-btn-outline"
+                            style={{ borderColor: '#ff6b6b', color: '#ff6b6b' }}
+                            onClick={handleDeleteAccount}
+                        >
+                            탈퇴
+                        </button>
                     </div>
                 </section>
 
-                {/* 작성글 관리 */}
-                <section className="myinfo-card">
-                    <div className="myinfo-card-header">
-                        <h2 className="myinfo-card-title">작성글 관리</h2>
-                        <span className="myinfo-card-count">{myPosts.length}개</span>
-                    </div>
-                    <ul className="myinfo-list">
-                        {myPosts.map((post) => (
-                            <li key={post.id} className="myinfo-list-item">
-                                <Link to={`/detail/${post.id}`} className="myinfo-item-main">
-                                    <span className="myinfo-item-title">[{post.boardName}] {post.title}</span>
-                                    <span style={{fontSize: '12px', color: '#888', marginLeft: '10px'}}>{post.createdAt}</span>
-                                </Link>
+                {/* 로딩 중이면 표시 */}
+                {loading ? (
+                    <p style={{ color: "#fff", textAlign: "center", padding: "20px" }}>불러오는 중...</p>
+                ) : (
+                    <>
+                        {/* 작성글 관리 카드 */}
+                        <section className="myinfo-card">
+                            <div className="myinfo-card-header">
+                                <h2 className="myinfo-card-title">작성글 관리</h2>
+                                <span className="myinfo-card-count">{myPosts.length}개</span>
+                            </div>
+                            <ul className="myinfo-list">
+                                {myPosts.length === 0 ? (
+                                    <li className="myinfo-empty">작성한 글이 없습니다.</li>
+                                ) : (
+                                    myPosts.map((post) => (
+                                        <li key={post.id} className="myinfo-list-item">
+                                            <Link to={`/detail/${post.id}`} className="myinfo-item-main">
+                        <span className="myinfo-item-title">
+                          <span style={{ fontWeight: "normal", color: "#666", marginRight: "6px" }}>
+                            [{post.boardName}]
+                          </span>
+                            {post.title}
+                        </span>
+                                                <span style={{ fontSize: "12px", color: "#888", marginLeft: "10px" }}>
+                          {post.createdAt}
+                        </span>
+                                            </Link>
 
-                                <div style={{display:'flex', gap:'5px', marginLeft:'10px'}}>
-                                    {/* ✅ 수정 버튼 활성화 */}
-                                    <button className="myinfo-edit-btn" onClick={() => handleEditPost(post)}>수정</button>
-                                    <button className="myinfo-delete-btn" onClick={() => handleDeletePost(post.id)}>삭제</button>
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
-                </section>
+                                            {/* 수정/삭제 버튼 */}
+                                            <div style={{display:'flex', gap:'5px', marginLeft:'10px'}}>
+                                                <button className="myinfo-edit-btn" onClick={() => alert("수정은 상세 페이지에서 가능합니다.")}>수정</button>
+                                                <button className="myinfo-delete-btn" onClick={() => handleDeletePost(post.id)}>삭제</button>
+                                            </div>
+                                        </li>
+                                    ))
+                                )}
+                            </ul>
+                        </section>
 
-                {/* 댓글 관리 */}
-                <section className="myinfo-card">
-                    <div className="myinfo-card-header">
-                        <h2 className="myinfo-card-title">댓글 관리</h2>
-                        <span className="myinfo-card-count">{myComments.length}개</span>
-                    </div>
-                    <ul className="myinfo-list">
-                        {myComments.map((comment) => (
-                            <li key={comment.id} className="myinfo-list-item">
-                                <Link to={`/detail/${comment.postId}`} className="myinfo-item-main">
-                                    <span className="myinfo-item-title">{comment.content}</span>
-                                    <span style={{fontSize: '12px', color: '#999', marginLeft: '10px'}}>{comment.createdAt}</span>
-                                </Link>
-                                <div style={{display:'flex', gap:'5px', marginLeft:'10px'}}>
-                                    <button className="myinfo-edit-btn" onClick={() => handleEditComment(comment.id, comment.content)}>수정</button>
-                                    <button className="myinfo-delete-btn" onClick={() => handleDeleteComment(comment.id)}>삭제</button>
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
-                </section>
+                        {/* 댓글 관리 카드 */}
+                        <section className="myinfo-card">
+                            <div className="myinfo-card-header">
+                                <h2 className="myinfo-card-title">댓글 관리</h2>
+                                <span className="myinfo-card-count">{myComments.length}개</span>
+                            </div>
 
+                            <ul className="myinfo-list">
+                                {myComments.length === 0 ? (
+                                    <li className="myinfo-empty">작성한 댓글이 없습니다.</li>
+                                ) : (
+                                    myComments.map((comment) => (
+                                        <li key={comment.id} className="myinfo-list-item">
+                                            <Link to={`/detail/${comment.postId}`} className="myinfo-item-main">
+                        <span className="myinfo-item-title">
+                          {comment.content}
+                            <span style={{ fontSize: "12px", color: "#999", marginLeft: "6px" }}>
+                            (글: {comment.postTitle})
+                          </span>
+                        </span>
+                                                <span style={{ fontSize: "12px", color: "#888", marginLeft: "10px" }}>
+                          {comment.createdAt}
+                        </span>
+                                            </Link>
+
+                                            {/* 수정/삭제 버튼 */}
+                                            <div style={{display:'flex', gap:'5px', marginLeft:'10px'}}>
+                                                <button className="myinfo-edit-btn" onClick={() => handleEditComment(comment.id, comment.content)}>수정</button>
+                                                <button className="myinfo-delete-btn" onClick={() => handleDeleteComment(comment.id)}>삭제</button>
+                                            </div>
+                                        </li>
+                                    ))
+                                )}
+                            </ul>
+                        </section>
+                    </>
+                )}
             </main>
         </div>
     );
 }
-
-// 간단한 인라인 스타일 (CSS 파일에 넣어도 됨)
-const inputStyle = { padding: '5px', borderRadius: '4px', border: '1px solid #ddd', fontSize: '13px', width: '150px' };
 
 export default MyInfoPage;

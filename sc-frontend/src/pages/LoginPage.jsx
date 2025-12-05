@@ -42,8 +42,14 @@ const LoginPage = () => {
 
         } catch (err) {
             console.error(err);
-            const msg = err.response?.data?.message || err.message || "로그인 실패";
-            alert(msg);
+
+            // ✅ [수정된 부분] 백엔드 에러 메시지 파싱
+            const data = err.response?.data;
+            const errorMsg = data?.error || data?.message || err.message;
+
+            // 사용자에게 명확한 메시지를 보여줌
+            alert(`로그인 실패: ${errorMsg || '사용자명 또는 비밀번호가 올바르지 않습니다.'}`);
+
         } finally {
             setLoading(false)
         }
@@ -52,9 +58,8 @@ const LoginPage = () => {
     return (
         <div className="login-page">
             <div className="login-container">
-                {/* 상단 아이콘 */}
-                <div className="login-icon">
-                    <span>🐤</span>
+                <div className="mascot">
+                    <div className="mascot-duck">🐤</div>
                 </div>
 
                 <h1><Link to="/" className="logo-link">스뮤니티</Link></h1>
@@ -103,7 +108,6 @@ const LoginPage = () => {
                     </button>
                 </form>
 
-                {/* ✅ 하단 링크 영역 수정됨 */}
                 <div className="login-footer">
                     <Link to="/register" className="footer-link">회원가입</Link>
                     <span className="divider">|</span>

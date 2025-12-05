@@ -130,3 +130,8 @@ export async function updatePost(postId, title, content) {
 export async function updateComment(commentId, content) {
     await client.patch(`/api/comments/${commentId}`, { content });
 }
+
+// 회원 탈퇴
+export async function deleteAccount() {
+    await client.delete(`/api/auth/users/me`);
+}

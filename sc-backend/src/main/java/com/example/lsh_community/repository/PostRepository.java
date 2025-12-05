@@ -16,4 +16,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     // 특정 유저가 쓴 글 목록 (최신순)
     List<Post> findAllByAuthorOrderByIdDesc(UserEntity author);
+
+    // 특정 유저(회원탈퇴)가 쓴 모든 게시글 삭제
+    void deleteAllByAuthor(UserEntity author);
 }

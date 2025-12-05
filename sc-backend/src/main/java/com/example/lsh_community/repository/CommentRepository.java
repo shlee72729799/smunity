@@ -12,4 +12,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     // CommentRepository.java 내부
     List<Comment> findAllByPostOrderByIdAsc(Post post);
+
+    // 특정 유저(회원탈퇴)가 쓴 모든 댓글 삭제
+    void deleteAllByAuthor(UserEntity author);
 }
