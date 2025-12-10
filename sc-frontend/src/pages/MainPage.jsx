@@ -11,11 +11,13 @@ const MainPage = () => {
   const navigate = useNavigate();
 
   const boardRoutes = {
-    popular: "/board/popular",
-    free: "/board/free",
-    anonymous1: "/board/anonymous1",
-    job: "/board/job",
-    recruit: "/board/recruit",
+      popular: "/board/popular",
+      free: "/board/free",
+      withme: "/board/withme",
+      anonymous1: "/board/anonymous1",
+      anonymous2: "/board/anonymous2",
+      job: "/board/job",
+      recruit: "/board/recruit",
   };
 
   const goBoard = (key) => {
@@ -25,7 +27,9 @@ const MainPage = () => {
   // 게시판별 state
   const [popularPosts, setPopularPosts] = useState([]);
   const [freePosts, setFreePosts] = useState([]);
+  const [withMePosts, setWithMePosts] = useState([]);
   const [anon1Posts, setAnon1Posts] = useState([]);
+    const [anon2Posts, setAnon2Posts] = useState([]);
   const [jobPosts, setJobPosts] = useState([]);
   const [recruitPosts, setRecruitPosts] = useState([]);
 
@@ -39,9 +43,17 @@ const MainPage = () => {
       .then((data) => setFreePosts(Array.isArray(data) ? data : []))
       .catch(() => setFreePosts([]));
 
+    fetchBoardPosts("WITHME")
+        .then((data) => setWithMePosts(Array.isArray(data) ? data : []))
+        .catch(() => setWithMePosts([]));
+
     fetchBoardPosts("ANON1")
       .then((data) => setAnon1Posts(Array.isArray(data) ? data : []))
       .catch(() => setAnon1Posts([]));
+
+    fetchBoardPosts("ANON2")
+        .then((data) => setAnon2Posts(Array.isArray(data) ? data : []))
+        .catch(() => setAnon2Posts([]));
 
     fetchBoardPosts("JOB")
       .then((data) => setJobPosts(Array.isArray(data) ? data : []))
@@ -153,6 +165,15 @@ const MainPage = () => {
                 titleLink={boardRoutes.popular}
                 morePath={boardRoutes.popular}
               />
+
+              <BoardSection
+                  title="With Me (같이 해요)"
+                  iconText="🤝"
+                  posts={withMePosts}
+                  titleLink={boardRoutes.withme}
+                  morePath={boardRoutes.withme}
+              />
+
               <BoardSection
                 title="자유게시판"
                 iconText="💬"
@@ -166,6 +187,13 @@ const MainPage = () => {
                 posts={anon1Posts}
                 titleLink={boardRoutes.anonymous1}
                 morePath={boardRoutes.anonymous1}
+              />
+              <BoardSection
+                  title="익명게시판2"
+                  iconText="🕵️"
+                  posts={anon2Posts}
+                  titleLink={boardRoutes.anonymous2}
+                  morePath={boardRoutes.anonymous2}
               />
               <BoardSection
                 title="취업게시판"

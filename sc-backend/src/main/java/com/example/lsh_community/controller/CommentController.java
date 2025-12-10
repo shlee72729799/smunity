@@ -28,7 +28,7 @@ public class CommentController {
             HttpServletRequest request
     ) {
         Long userId = getUserIdFromSession(request);
-        commentService.createComment(postId, userId, req.content());
+        commentService.createComment(postId, userId, req.content(), req.isAnonymous());
         return ResponseEntity.ok().build();
     }
 

@@ -4,12 +4,15 @@ import Header from "../components/Header";
 import { useAuth } from "../contexts/AuthContext";
 import { createPost, updatePost, fetchPostDetail } from "../api/client";
 
-const resolveBoardCode = (type) => { /* 기존 로직 유지 */
+// 게시판 코드 매핑 (WITHME 추가)
+const resolveBoardCode = (type) => {
     switch (type) {
         case "free": return "FREE";
         case "anonymous1": return "ANON1";
+        case "anonymous2": return "ANON2";
         case "job": return "JOB";
         case "recruit": return "RECRUIT";
+        case "withme": return "WITHME";
         default: return "FREE";
     }
 };
@@ -32,8 +35,24 @@ const NewPostPage = () => {
     const [boardCode, setBoardCode] = useState(initialBoardCode);
     const [title, setTitle] = useState(state.initialTitle || "");
     const [content, setContent] = useState(state.initialContent || "");
+
+    // With Me 전용 State
+    const [withMeInput, setWithMeInput] = useState("");
+    const [recruitmentDeadline, setRecruitmentDeadline] = useState("");
+    const [meetingTime, setMeetingTime] = useState("");
+    const [meetingLocation, setMeetingLocation] = useState("");
+    const [maxParticipants, setMaxParticipants] = useState(2);
+
     const [error, setError] = useState("");
     const [submitting, setSubmitting] = useState(false);
+
+    const getMinDateTime = () => {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); // 한국 시간 보정
+        return now.toISOString().slice(0, 16);
+    };
+
+    const [isAnonymous, setIsAnonymous] = useState(false);
 
     // 수정 모드일 경우, 글 내용을 API로 가져와 폼을 채움
     useEffect(() => {
@@ -55,32 +74,77 @@ const NewPostPage = () => {
         e.preventDefault();
         setError("");
 
-        if (!title.trim() || !content.trim()) {
-            setError("제목과 내용을 모두 입력하세요.");
+        let finalTitle = title;
+
+        // 1. With Me 게시판 유효성 검사 및 제목 생성
+        if (boardCode === "WITHME") {
+            if (!withMeInput.trim()) {
+                setError("제목 키워드를 입력해주세요.");
+                return;
+            }
+            finalTitle = `나랑 같이 ${withMeInput} 사람~`;
+
+            // 필수 입력 체크
+            if (!recruitmentDeadline || !meetingTime || !meetingLocation) {
+                setError("날짜, 시간, 장소를 모두 입력해주세요.");
+                return;
+            }
+            // 시간 논리 체크
+            if (new Date(recruitmentDeadline) > new Date(meetingTime)) {
+                setError("모집 마감은 약속 시간보다 빨라야 합니다.");
+                return;
+            }
+        } else {
+            // 2. 일반 게시판 유효성 검사
+            if (!finalTitle.trim()) {
+                setError("제목을 입력해주세요.");
+                return;
+            }
+        }
+
+        // 공통 유효성 검사
+        if (!content.trim()) {
+            setError("내용을 입력해주세요.");
             return;
         }
 
         try {
             setSubmitting(true);
+            // 익명게시판이면 강제로 true, 아니면 체크박스 값
+            const forceAnonymous = boardCode === "ANON1" || boardCode === "ANON2";
 
             if (isEditMode) {
-                // 수정 API 호출
-                await updatePost(editPostId, title, content);
+                // 수정 API 호출 (기존 유지)
+                await updatePost(editPostId, finalTitle, content);
                 alert("게시글이 성공적으로 수정되었습니다.");
-                navigate(`/detail/${editPostId}`); // 상세 페이지로 이동
+                navigate(`/detail/${editPostId}`);
             } else {
-                // 작성 API 호출
-                const newId = await createPost(boardCode, title, content);
-                navigate(`/detail/${newId}`);
+                // 작성 API 호출 (With Me 데이터 포함)
+                // createPost의 4번째 인자로 extraData 객체 전달
+                await createPost(boardCode, finalTitle, content, {
+                    recruitmentDeadline: boardCode === "WITHME" ? recruitmentDeadline : null,
+                    meetingTime: boardCode === "WITHME" ? meetingTime : null,
+                    meetingLocation: boardCode === "WITHME" ? meetingLocation : null,
+                    maxParticipants: boardCode === "WITHME" ? parseInt(maxParticipants) : null,
+
+                    // 익명 여부 전송
+                    isAnonymous: forceAnonymous ? true : isAnonymous
+                });
+                // 성공 시 뒤로가기 (목록이나 상세페이지로 이동)
+                navigate(-1);
             }
 
         } catch (err) {
             console.error(err);
-            setError(err.response?.data?.message || "작업 중 오류가 발생했습니다.");
+            const msg = err.response?.data?.error || err.response?.data?.message || "작업 중 오류가 발생했습니다.";
+            setError(msg);
         } finally {
             setSubmitting(false);
         }
     };
+
+    // 익명 게시판인지 확인하는 헬퍼
+    const isAnonBoard = boardCode === "ANON1" || boardCode === "ANON2";
 
     return (
         <div className="main-page">
@@ -108,23 +172,95 @@ const NewPostPage = () => {
                             style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #ddd", backgroundColor: isEditMode ? "#f0f0f0" : "#fff" }}
                         >
                             <option value="FREE">자유게시판</option>
+                            <option value="WITHME">With Me (같이 해요)</option>
                             <option value="ANON1">익명게시판1</option>
+                            <option value="ANON2">익명게시판2</option>
                             <option value="JOB">취업게시판</option>
                             <option value="RECRUIT">모집공고</option>
                         </select>
+
+                        {/* 익명 옵션 체크박스 */}
+                        {/* 익명 게시판일 때는 '익명으로 작성됩니다' 문구 표시 */}
+                        {/* 그 외 게시판일 때는 체크박스 표시 */}
+                        <div style={{ padding: "0 5px" }}>
+                            {isAnonBoard ? (
+                                <span style={{ fontSize: 14, color: "#fff", fontWeight: "bold" }}>
+                                    ℹ️ 이 게시판은 익명으로 작성됩니다.
+                                </span>
+                            ) : (
+                                <label style={{ fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", gap: "6px", color: "#fff" }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={isAnonymous}
+                                        onChange={(e) => setIsAnonymous(e.target.checked)}
+                                    />
+                                    익명으로 작성
+                                </label>
+                            )}
+                        </div>
+
                     </div>
 
-                    <div>
-                        <label htmlFor="title" style={{ display: "block", marginBottom: 4, fontWeight: 500 }}>제목</label>
-                        <input
-                            id="title"
-                            type="text"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #ddd" }}
-                            placeholder="제목을 입력하세요"
-                        />
-                    </div>
+                    {/* With Me 제목 입력 UI 분기 */}
+                    {boardCode === "WITHME" ? (
+                        <div style={{ background: "#f0f8ff", padding: 15, borderRadius: 8, border: "1px solid #cce5ff", display:"flex", alignItems:"center", flexWrap:"wrap" }}>
+                            <span style={{ fontSize: 18, fontWeight: "bold" }}>나랑 같이 </span>
+                            <input
+                                type="text"
+                                value={withMeInput}
+                                onChange={(e) => setWithMeInput(e.target.value)}
+                                placeholder="예: 밥 먹을"
+                                style={{ fontSize: 16, padding: "5px 10px", width: 200, margin: "0 5px", border:"1px solid #ddd", borderRadius:4 }}
+                            />
+                            <span style={{ fontSize: 18, fontWeight: "bold" }}> 사람~</span>
+                        </div>
+                    ) : (
+                        <div>
+                            <label htmlFor="title" style={{ display: "block", marginBottom: 4, fontWeight: 500 }}>제목</label>
+                            <input
+                                id="title"
+                                type="text"
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
+                                style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #ddd" }}
+                                placeholder="제목을 입력하세요"
+                            />
+                        </div>
+                    )}
+
+                    {/* With Me 추가 정보 입력 필드 */}
+                    {boardCode === "WITHME" && (
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, background: "#fafafa", padding: 15, borderRadius: 8 }}>
+                            <div>
+                                <label style={{display:"block", fontSize:12, marginBottom:4}}>모집 인원 (본인 제외)</label>
+                                <input type="number" min="1" value={maxParticipants} onChange={e=>setMaxParticipants(e.target.value)} style={{width:"100%", padding:8, border:"1px solid #ddd", borderRadius:4}} />
+                            </div>
+                            <div>
+                                <label style={{display:"block", fontSize:12, marginBottom:4}}>약속 장소</label>
+                                <input type="text" value={meetingLocation} onChange={e=>setMeetingLocation(e.target.value)} style={{width:"100%", padding:8, border:"1px solid #ddd", borderRadius:4}} />
+                            </div>
+                            <div>
+                                <label style={{display:"block", fontSize:12, marginBottom:4}}>모집 마감</label>
+                                <input
+                                    type="datetime-local"
+                                    value={recruitmentDeadline}
+                                    onChange={e=>setRecruitmentDeadline(e.target.value)}
+                                    min={getMinDateTime()}
+                                    style={{width:"100%", padding:8, border:"1px solid #ddd", borderRadius:4}}
+                                />
+                            </div>
+                            <div>
+                                <label style={{display:"block", fontSize:12, marginBottom:4}}>약속 시간</label>
+                                <input
+                                    type="datetime-local"
+                                    value={meetingTime}
+                                    onChange={e=>setMeetingTime(e.target.value)}
+                                    min={getMinDateTime()}
+                                    style={{width:"100%", padding:8, border:"1px solid #ddd", borderRadius:4}}
+                                />
+                            </div>
+                        </div>
+                    )}
 
                     <div>
                         <label htmlFor="content" style={{ display: "block", marginBottom: 4, fontWeight: 500 }}>내용</label>

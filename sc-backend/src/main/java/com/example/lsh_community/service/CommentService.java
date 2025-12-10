@@ -23,13 +23,13 @@ public class CommentService {
     private final UserRepository userRepository;
 
     // 댓글 작성
-    public void createComment(Long postId, Long userId, String content) {
+    public void createComment(Long postId, Long userId, String content, boolean isAnonymous) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글이 없습니다."));
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저가 없습니다."));
 
-        Comment comment = new Comment(post, user, content);
+        Comment comment = new Comment(post, user, content, isAnonymous);
         commentRepository.save(comment);
 
         post.increaseCommentCount();

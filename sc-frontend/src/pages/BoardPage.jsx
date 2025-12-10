@@ -8,19 +8,23 @@ import "../styles/BoardPage.css";
 
 // URL의 type -> 화면에 보여줄 게시판 이름
 const boardNameMap = {
-  popular: "오늘의 인기글",
-  free: "자유 게시판",
-  anonymous1: "익명 게시판 1",
-  job: "취업 게시판",
-  recruit: "모집 공고",
+    popular: "오늘의 인기글",
+    free: "자유 게시판",
+    anonymous1: "익명 게시판 1",
+    anonymous2: "익명 게시판 2",
+    job: "취업 게시판",
+    recruit: "모집 공고",
+    withme: "With Me (같이 해요)",
 };
 
 // URL의 type -> 백엔드 boardCode
 const boardCodeMap = {
-  free: "FREE",
-  anonymous1: "ANON1",
-  job: "JOB",
-  recruit: "RECRUIT",
+    free: "FREE",
+    anonymous1: "ANON1",
+    anonymous2: "ANON2",
+    job: "JOB",
+    recruit: "RECRUIT",
+    withme: "WITHME",
 };
 
 const BoardPage = () => {

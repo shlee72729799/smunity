@@ -39,7 +39,7 @@ const Header = () => {
           </div>
         </div>
 
-        {/* 오른쪽: 로그인/회원가입/쪽지 */}
+        {/* 오른쪽: 로그인/회원가입/with me */}
         <div className="header-right">
           {!isLoggedIn ? (
             <>
@@ -52,8 +52,8 @@ const Header = () => {
             </>
           ) : (
             <>
-              <Link to="/messages" className="auth-btn">
-                쪽지
+              <Link to="/withme" className="auth-btn">
+                With Me
               </Link>
 
               <Link to="/myinfo" className="auth-btn">

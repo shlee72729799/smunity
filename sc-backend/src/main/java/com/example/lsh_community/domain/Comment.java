@@ -26,17 +26,22 @@ public class Comment {
 
     @Column(nullable = false)
     private String content;
-
     private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime updatedAt;
+    private boolean isAnonymous;
 
-    public Comment(Post post, UserEntity author, String content) {
+    public Comment(Post post, UserEntity author, String content, boolean isAnonymous) {
         this.post = post;
         this.author = author;
         this.content = content;
+        this.isAnonymous = isAnonymous;
     }
+
+    public boolean isAnonymous() { return isAnonymous; }
 
     // 댓글 수정
     public void update(String content) {
         this.content = content;
+        this.updatedAt = LocalDateTime.now();
     }
 }

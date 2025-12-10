@@ -36,15 +36,20 @@ public class Post {
     private long likeCount = 0L;
     private long commentCount = 0L;
     private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime updatedAt;
+    private boolean isAnonymous;
 
     // 생성자 수정 (작성자 포함)
-    public Post(Board board, UserEntity author, String title, String content) {
+    public Post(Board board, UserEntity author, String title, String content, boolean isAnonymous) {
         this.board = board;
         this.author = author;
         this.title = title;
         this.content = content;
+        this.isAnonymous = isAnonymous;
         this.createdAt = LocalDateTime.now();
     }
+
+    public boolean isAnonymous() { return isAnonymous; }
 
     public void increaseView() { this.viewCount++; }
 
@@ -57,6 +62,7 @@ public class Post {
     public void update(String title, String content) {
         this.title = title;
         this.content = content;
+        this.updatedAt = LocalDateTime.now();
     }
 
     // 댓글 수 증가 메서드

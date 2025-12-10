@@ -107,6 +107,8 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
 
         return postRepository.findAllByAuthorOrderByIdDesc(user).stream()
+                // WITHME 게시판 글은 제외하고 필터링 (내 정보 페이지에 안 뜨게 함)
+                .filter(p -> !"WITHME".equals(p.getBoard().getCode()))
                 .map(p -> new MyPostDto(
                         p.getId(),
                         p.getTitle(),
