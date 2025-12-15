@@ -18,6 +18,11 @@ body {
   min-height: 100vh;
 }
 
+body {
+  padding-bottom: 60px; /* footer 높이만큼 여유 공간 */
+}
+
+
 
 
 

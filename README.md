@@ -1,69 +1,35 @@
+12월 04일 변경 사항(프론트 부분)
+추가 프론트 기능
++내 정보 페이지
++좋아요 클릭 기능, 댓글 클릭 기능
++메인페이지 footer 정리
++전체적 프론트 정리
 
-🏫 스뮤니티
-상명대학교 전용 커뮤니티 플랫폼 (H2 기반 버전)
-React + Spring Boot + H2 Database로 구성된 교내 커뮤니티 웹서비스
+아직 구현 못한 기능
+-좌측 API 구현 못함
+-쪽지함 기능, 프론트
+<<<<<<< Updated upstream
+-각 게시판에서 좋아요, 댓글 기능자체는 되지만, 백앤드 데이터 구현이 안되어 있어서 다른 페이지에서는 저장 안됨
+-메인 페이지 좀 더 프론트 정리 필요
+-상단에 인기글 top10 기능 애니메이션 (더미 파일로 기능 없음)--> 검색 기능 추가 여부?
+=======
+-각 게시판에서 좋아요, 댓글 기능자체는 되지만, 백앤드 데이터 구현이 안되어 있어서 다른 페이지에서는 저장 안됨-> 12/5 구현 완.
+-메인 페이지 좀 더 프론트 정리 필요
+-상단에 인기글 top10 기능 애니메이션 (더미 파일로 기능 없음)--> 검색 기능 추가 여부?
 
-📘 프로젝트 개요
-스뮤니티는 상명대학교 학생들이 자유롭게 정보를 공유하고 소통할 수 있도록 만든 전용 커뮤니티입니다.
-‘스누라이프(SNUlife)’나 ‘고파스’처럼 학교별 독립 커뮤니티의 필요성을 기반으로 기획되었습니다.
 
-🧩 주요 기술 스택
-구분	사용 기술
-Frontend	React, Vite, TailwindCSS
-Backend	Spring Boot (v3.x), JPA, Maven
-Database	H2 (in-memory)
-Auth	BCrypt 기반 회원가입 및 로그인
-Tools	IntelliJ IDEA, VSCode, GitHub, Postman
+12월 5일 변경 사항(백엔드 부분 + 프론트 조금)
+내 정보 페이지-> 쪽지, 댓글 삭제 빼고 다 추가
+거의 다 했음
+추가사항 추후에 자세히 다시 작성할 예정
 
-🖥️ 주요 기능
+12월 6일 변경 사항
+'쪽지', '게시글/댓글 수정 시 수정됨 표시 및 수정 시간 표시' 제외한 나머지 추가 및 수정 완료
 
-🔐 회원가입 / 로그인
-BCrypt로 비밀번호 암호화 후 저장
-중복 ID 및 이메일 검사
-
-📰 게시판 CRUD
-글 작성 / 목록 / 수정 / 삭제 기능
-작성자 이름 표시
-💬 익명/실명 혼합 게시판 구조
-⚙️ 기본 오류 처리 및 콘솔 로그 디버깅 지원
-
-⚙️ 시스템 아키텍처
-flowchart LR
-  A[React Frontend] -->|REST API| B[Spring Boot Backend]
-  B --> C[(H2 Database)]
-
-개발 시 H2 콘솔을 통해 데이터 확인 가능
-→ http://localhost:8080/h2-console
-
-JDBC URL 예시: jdbc:h2:mem:testdb
-사용자명: sa, 비밀번호: (빈칸)
-
-📄 API 요약
-Method	Endpoint	설명
-POST	/api/auth/signup	회원가입
-POST	/api/auth/login	로그인
-GET	/Community	글 목록 조회
-GET	/Community/{id}	글 상세 조회
-POST	/Community	글 작성
-PATCH	/Community/{id}	글 수정
-DELETE	/Community/{id}	글 삭제
-
-🧠 폴더 구조
-스뮤니티/
- ├── backend/
- │   ├── src/main/java/com/example/lsh_community/
- │   │    ├── controller/
- │   │    ├── service/
- │   │    ├── entity/
- │   │    ├── dto/
- │   │    └── repository/
- │   └── resources/
- │       ├── application.yml
- │       └── data.sql (optional)
- └── frontend/
-     ├── src/
-     │   ├── pages/
-     │   ├── components/
-     │   ├── api/
-     │   └── styles/
-     └── package.json
+<12월 11일 변경 및 추가 사항>
+- 게시글/댓글 수정 시, 시간과 수정됨 표시 추가
+- 익명 체크-> 익명으로 작성(게시글/댓글), 익명게시판에서는 게시글/댓글 모두 무조건 익명으로 작성됨
+- 쪽지 기능 빼고 with me 기능 추가-> with me 게시글 작성자 기준으로 잘 구현됐는데, 참여하기 누른 사람 기준에서 잘 구현되었는지는 확인 불가
+- with me 게시판 로직은 노션에 업로드할 예정(업로드 완료)
+- 카톡에 올린 영상 참고하세용
+>>>>>>> Stashed changes

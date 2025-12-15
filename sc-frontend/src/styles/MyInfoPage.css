@@ -1,0 +1,189 @@
+/* src/styles/MyInfoPage.css */
+
+.myinfo-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #3366ff 0%, #6a8bff 40%, #99b3ff 100%);
+}
+
+/* 전체 레이아웃 */
+.myinfo-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px 24px 80px;
+  box-sizing: border-box;
+}
+
+/* 제목 */
+.myinfo-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 24px;
+}
+
+/* 카드 공통 스타일 (계정 / 작성글 / 댓글 모두 동일) */
+.myinfo-card {
+  background: rgba(255, 255, 255, 0.97);
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.3);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+/* 계정 정보 카드만 약간 여백 조정 */
+.myinfo-account-card {
+  margin-bottom: 28px;
+}
+
+/* 계정 정보 한 줄 */
+.myinfo-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 14px;
+}
+
+.myinfo-label {
+  font-weight: 600;
+  color: #111827;
+}
+
+.myinfo-value {
+  color: #4b5563;
+}
+
+/* 비밀번호 영역 */
+.myinfo-row-password {
+  margin-top: 8px;
+}
+
+.myinfo-password-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.myinfo-btn-outline {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid #4b6cff;
+  background: #ffffff;
+  color: #4b6cff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.myinfo-btn-outline:hover {
+  background: #e0e7ff;
+}
+
+/* 카드 상단 헤더 (작성글 관리 / 댓글 관리 타이틀) */
+.myinfo-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.myinfo-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.myinfo-card-count {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* 리스트 */
+.myinfo-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.myinfo-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(248, 250, 252, 0.96);
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-top: 8px;
+  border: 1px solid rgba(229, 231, 235, 0.9);
+}
+
+/* 제목 부분 전체 클릭 가능 */
+.myinfo-item-main {
+  flex: 1;
+  text-decoration: none;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.myinfo-item-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 삭제 버튼 */
+.myinfo-delete-btn {
+  margin-left: 12px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #ff6b6b;
+  color: #ffffff;
+}
+
+.myinfo-delete-btn:hover {
+  background: #fb4b4b;
+}
+
+/* 비어 있을 때 */
+.myinfo-empty {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(249, 250, 251, 0.96);
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.myinfo-edit-btn {
+    padding: 5px 10px;
+    border-radius: 999px;
+    border: 1px solid #ddd;
+    background: white;
+    color: #555;
+    font-size: 11px;
+    cursor: pointer;
+}
+.myinfo-edit-btn:hover { background: #f0f0f0; }
+
+.myinfo-delete-btn {
+    padding: 5px 10px;
+    border-radius: 999px;
+    border: none;
+    background: #ff6b6b;
+    color: white;
+    font-size: 11px;
+    cursor: pointer;
+
+    margin-left: 4px;
+}
+.myinfo-delete-btn:hover { background: #fa5252; }

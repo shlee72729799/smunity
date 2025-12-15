@@ -1,479 +1,374 @@
-// src/pages/DetailPage.jsx
-import { useEffect, useMemo, useState } from 'react';
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import { useAuth } from "../contexts/AuthContext";
 import {
-  createCommunityPost,
-  fetchCommunityPost,
-  updateCommunityPost,
-  deleteCommunityPost,
-} from '../api/client';
-import {
-  addLocalBoardPost,
-  deleteLocalBoardPost,
-  findLocalBoardPost,
-  updateLocalBoardPost,
-} from '../utils/boardStorage';
-import '../styles/DetailPage.css';
-import { boardConfigs } from '../data/boardData';
+    fetchPostDetail, likePost, fetchComments, createComment, updateComment, deleteComment,
+    joinWithMe, cancelWithMe
+} from "../api/client";
+import "../styles/DetailPage.css";
 
-const DetailPage = () => {
-  const { isLoggedIn, logout } = useAuth();
-  const categories = {
-    community: [
-      { name: '자유게시판', count: 16, slug: 'free' },
-      { name: '익게1', count: 13, slug: 'anonymous1' },
-      { name: '익게2', count: 298, slug: 'anonymous2' },
-      { name: '연애상담소', count: 13, slug: 'romance' },
-      { name: '졸업생', count: 4, slug: 'alumni' },
-      { name: '냉동실', count: 4, slug: 'freezer' },
-      { name: '정치', count: 11, slug: 'politics' },
-      { name: '주식/투자', count: 1, slug: 'stocks' },
-      { name: '맛집', count: 1, slug: 'food' },
-      { name: '헬스', count: 1, slug: 'health' },
-      { name: '총학생회', count: 0, slug: 'studentCouncil' },
-      { name: '회원문의/탈퇴', count: 0, slug: 'membership' },
-    ],
-    career: [
-      { name: '모집공고', count: 11, slug: 'recruit' },
-      { name: '취업게시판', count: 32, slug: 'job' },
-      { name: 'CPA/세무사', count: 9, slug: 'cpa' },
-      { name: '로스쿨', count: 0, slug: 'lawschool' },
-      { name: '고시/전문직', count: 0, slug: 'exam' },
-      { name: '일반대학원', count: 1, slug: 'grad' },
-    ],
-    life: [
-      { name: '벼룩시장', count: 1, slug: 'flea' },
-      { name: '연재/칼럼', count: 0, slug: 'serial' },
-      { name: '제휴병원', count: 0, slug: 'hospital' },
-      { name: '상명학보', count: 0, slug: 'sangmyungNews' },
-      { name: '인터넷 가입', count: 0, slug: 'internet' },
-      { name: '휴대폰 상담', count: 0, slug: 'mobile' },
-    ],
-    genealogy: [
-      { name: '강의평가', count: 0 },
-    ],
-  };
+function DetailPage() {
+    const { isLoggedIn, logout, user } = useAuth(); // user 객체 필요
+    const { id } = useParams();
+    const navigate = useNavigate();
 
-  const { id } = useParams();
-  const location = useLocation();
-  const searchParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
-  const boardType = location.state?.boardType || searchParams.get('board') || null;
-  const localPostId = location.state?.localId || searchParams.get('localId') || null;
-  const statePost = location.state?.post;
-  const initialLocalPost = useMemo(() => {
-    if (!boardType || !localPostId) return null;
-    if (statePost?.localId === localPostId) return statePost;
-    return findLocalBoardPost(boardType, localPostId);
-  }, [boardType, localPostId, statePost]);
-  const staticPost = initialLocalPost ? null : statePost;
-  const isLocalPost = Boolean(initialLocalPost);
-  const isStatic = Boolean(staticPost);
-  const isNew = useMemo(() => !isStatic && !isLocalPost && (!id || id === 'new'), [id, isStatic, isLocalPost]);
-  const boardConfig = boardType ? boardConfigs[boardType] : null;
-  const isLocalBoardTarget = useMemo(() => Boolean(boardConfig && !boardConfig.fetchCommunity), [boardConfig]);
-  const boardLabel = boardType ? (boardConfig?.title ?? boardType) : null;
-  const navigate = useNavigate();
+    const [post, setPost] = useState(null);
+    const [comments, setComments] = useState([]);
+    const [commentText, setCommentText] = useState("");
+    const [isCommentAnon, setIsCommentAnon] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
 
-  const [form, setForm] = useState({
-    title: initialLocalPost?.title ?? staticPost?.title ?? '',
-    content: initialLocalPost?.content ?? staticPost?.content ?? '',
-    name: initialLocalPost?.name ?? staticPost?.name ?? '',
-  });
-  const [anon, setAnon] = useState(
-    (initialLocalPost?.name ?? staticPost?.name ?? '') === '익명'
-  );
-  const [loadedPost, setLoadedPost] = useState(initialLocalPost ?? staticPost ?? null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [loading, setLoading] = useState(
-    !(initialLocalPost || isLocalBoardTarget || isStatic || isNew)
-  );
-  const [saving, setSaving] = useState(false);
+    const [hasLiked, setHasLiked] = useState(false);
+    const [isLiking, setIsLiking] = useState(false);
 
-  const rulesText = `스뮤니티는 누구나 기분 좋게 참여할 수 있는 커뮤니티를 만들기 위해 커뮤니티 이용규칙을 제정하여 운영하고 있습니다. 위반 시 게시물이 삭제되고 서비스 이용이 일정 기간 제한될 수 있습니다.\n\n아래는 이 게시판에 해당하는 핵심 내용의 요약 사항이며, 게시물 작성 전 커뮤니티 이용규칙 전문을 반드시 확인하시기 바랍니다.\n\n※ 정치·사회 관련 행위 금지\n- 국가기관, 정치 관련 단체, 언론, 신문·인터넷매체에 대한 언급 혹은 이와 관련한 행위\n- 정책·외교 또는 정치·정쟁에 대한 의견, 주장 및 이념, 가치관을 드러내는 행위\n- 성별, 종교, 인종, 출신, 지역, 직업, 이름 등 사회적 이슈에 대한 언급 혹은 이와 관련한 행위\n- 위와 같은 내용으로 유추될 수 있는 비유, 은어 사용 행위\n* 해당 게시물은 시사·이슈 게시판에만 작성 가능합니다.\n\n※ 홍보 및 판매 관련 행위 금지\n- 업과 여부와 관계 없이 사회·기관·단체·개인에게 직간접적으로 영향을 줄 수 있는 게시물 작성 행위\n- 위와 관련된 것으로 의심되거나 예상될 수 있는 바이럴 홍보 및 명칭·단어 언급 행위\n* 해당 게시물은 홍보게시판에만 작성 가능합니다.\n\n※ 불법촬영물 유통 금지 및 그 밖의 규칙 위반 금지`;
+    // 댓글 수정 핸들러
+    const handleUpdateComment = async (commentId, oldContent) => {
+        if (!user) return alert("로그인 상태를 확인해 주세요.");
 
-  // 기존 글 불러오기 (조회/수정)
-  useEffect(() => {
-    if (initialLocalPost) {
-      setLoadedPost(initialLocalPost);
-      setForm({
-        title: initialLocalPost?.title ?? '',
-        content: initialLocalPost?.content ?? '',
-        name: initialLocalPost?.name ?? '',
-      });
-      setAnon((initialLocalPost?.name ?? '') === '익명');
-      setLoading(false);
-      return;
-    }
-    if (isLocalBoardTarget && localPostId) {
-      const local = findLocalBoardPost(boardType, localPostId);
-      if (local) {
-        setLoadedPost(local);
-        setForm({
-          title: local?.title ?? '',
-          content: local?.content ?? '',
-          name: local?.name ?? '',
-        });
-        setAnon((local?.name ?? '') === '익명');
-      } else {
-        alert('게시글을 찾을 수 없습니다.');
-        navigate(boardType ? `/board/${boardType}` : '/');
-      }
-      setLoading(false);
-      return;
-    }
-    if (isStatic) {
-      setLoadedPost(staticPost);
-      setLoading(false);
-      setIsEditing(false);
-      return;
-    }
-    let cancelled = false;
-    (async () => {
-      if (isNew) {
-        setLoading(false);
-        return;
-      }
-      try {
-        setLoading(true);
-        const data = await fetchCommunityPost(id);
-        if (cancelled) return;
-        setLoadedPost(data);
-        setForm({
-          title: data?.title ?? '',
-          content: data?.content ?? '',
-          name: data?.name ?? '',
-        });
-        setAnon((data?.name ?? '') === '익명');
-      } catch (err) {
-        alert(`글을 불러오지 못했습니다: ${err.message || err}`);
-        navigate('/');
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [boardType, id, initialLocalPost, isLocalBoardTarget, isNew, isStatic, localPostId, navigate, staticPost]);
+        const newContent = prompt("수정할 내용을 입력하세요:", oldContent);
+        if (newContent === null || newContent === oldContent || !newContent.trim()) return;
 
-  const onChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const onAnonToggle = (e) => {
-    const checked = e.target.checked;
-    setAnon(checked);
-    setForm((prev) => ({ ...prev, name: checked ? '익명' : '' }));
-  };
-
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    if (saving) return;
-
-    // Swagger API에 맞게 payload 구성
-    const payload = {
-      title: form.title?.trim(),
-      content: form.content?.trim(),
+        try {
+            await updateComment(commentId, newContent);
+            // 목록 새로고침 (업데이트된 내용 반영)
+            const updated = await fetchComments(id);
+            setComments(updated);
+            alert("댓글이 수정되었습니다.");
+        } catch (e) {
+            alert("수정 실패: 본인의 댓글만 수정할 수 있습니다.");
+        }
     };
-    
-    // name 필드가 있고 비어있지 않으면 추가 (Swagger가 요구하는 경우)
-    const nameValue = form.name?.trim() || (anon ? '익명' : '');
-    if (nameValue) {
-      payload.name = nameValue;
-    }
 
-    if (!payload.title || !payload.content) {
-      alert('제목과 내용을 입력해 주세요.');
-      return;
-    }
+    // 댓글 삭제 핸들러
+    const handleDeleteComment = async (commentId) => {
+        if (!user) return alert("로그인 상태를 확인해 주세요.");
+        if (!window.confirm("댓글을 삭제하시겠습니까?")) return;
 
-    if (isLocalBoardTarget) {
-      if (localPostId) {
-        const updated = updateLocalBoardPost(boardType, localPostId, {
-          ...payload,
-        });
-        setLoadedPost(updated);
-        setIsEditing(false);
-        alert('수정 완료');
-      } else {
-        addLocalBoardPost(boardType, {
-          ...payload,
-          comments: 0,
-        });
-        navigate(`/board/${boardType}`);
-      }
-      return;
-    }
+        try {
+            await deleteComment(commentId);
+            // 목록 갱신
+            const updated = await fetchComments(id);
+            setComments(updated);
+            alert("댓글이 삭제되었습니다.");
+        } catch (e) {
+            alert("삭제 실패: 본인의 댓글만 삭제할 수 있습니다.");
+        }
+    };
 
-    try {
-      setSaving(true);
-      if (isNew) {
-        const created = await createCommunityPost(payload);
-        // 응답에 id가 있으면 상세로, 없으면 목록으로
-        if (created?.id) navigate(`/detail/${created.id}`);
-        else navigate('/');
-      } else {
-        await updateCommunityPost(id, payload);
-        setLoadedPost({ ...(loadedPost || {}), ...payload });
-        setIsEditing(false);
-        alert('수정 완료');
-      }
-    } catch (err) {
-      console.error('Save error:', err);
-      alert(`저장 실패: ${err.message || err}`);
-    } finally {
-      setSaving(false);
-    }
-  };
 
-  const onDelete = async () => {
-    if (saving) return;
-    if (!confirm('정말 삭제하시겠어요?')) return;
-    if (isLocalBoardTarget && localPostId) {
-      deleteLocalBoardPost(boardType, localPostId);
-      navigate(`/board/${boardType}`);
-      return;
-    }
-    try {
-      setSaving(true);
-      await deleteCommunityPost(id);
-      navigate('/');
-    } catch (err) {
-      alert(`삭제 실패: ${err.message || err}`);
-    } finally {
-      setSaving(false);
-    }
-  };
+    // 초기 데이터 로딩 (게시글 + 댓글 병렬 조회)
+    useEffect(() => {
+        async function loadData() {
+            try {
+                setLoading(true);
+                const [postData, commentsData] = await Promise.all([
+                    fetchPostDetail(id),
+                    fetchComments(id)
+                ]);
 
-  if (loading) {
-    return <div className="post-loading">로딩중…</div>;
-  }
+                setPost(postData);
+                setComments(commentsData || []);
 
-  if (isStatic && !loadedPost) {
-    return <div className="post-loading">게시글 정보를 찾을 수 없습니다.</div>;
-  }
+                if (postData && typeof postData.hasLiked === 'boolean') {
+                    setHasLiked(postData.hasLiked);
+                }
 
-  return (
-    <div className="detail-page">
-      <header className="detail-header">
-        <div className="header-content">
-          <Link to="/" className="logo">스뮤니티</Link>
-          <nav className="main-nav">
-            <a href="#community">커뮤니티</a>
-            <a href="#career">커리어</a>
-            <a href="#life">생활</a>
-            <a href="#genealogy">족보실</a>
-            <a href="#all">전체글</a>
-            <a href="#popular">인기글</a>
-          </nav>
-          <div className="user-links">
-            {!isLoggedIn ? (
-              <Link to="/login">로그인</Link>
-            ) : (
-              <>
-                <a href="#mypage">내 페이지</a>
-                <a href="#" onClick={(e) => { e.preventDefault(); logout(); }}>로그아웃</a>
-              </>
-            )}
-          </div>
-        </div>
-      </header>
+            } catch (e) {
+                console.error(e);
+                setError("게시글을 불러오지 못했습니다.");
+            } finally {
+                setLoading(false);
+            }
+        }
+        loadData();
+    }, [id]);
 
-      <div className="detail-banner">
-        <span>새내기를 위한 안내문 - SM Connect</span>
-      </div>
+    // 좋아요 핸들러
+    const handleLike = async () => {
+        if (!isLoggedIn) return alert("로그인이 필요합니다.");
+        if (isLiking) return;
 
-      <div className="detail-content">
-        <aside className="sidebar">
-          <div className="category-section">
-            <h4>커뮤니티</h4>
-            <ul className="category-list">
-              {categories.community.map((item, index) => (
-                <li key={index}>
-                  <span>{item.name}</span>
-                  {item.count > 0 && <span className="count">+{item.count}</span>}
-                </li>
-              ))}
-            </ul>
-          </div>
+        try {
+            setIsLiking(true);
+            const newCount = await likePost(id);
 
-          <div className="category-section">
-            <h4>커리어</h4>
-            <ul className="category-list">
-              {categories.career.map((item, index) => (
-                <li key={index}>
-                  <span>{item.name}</span>
-                  {item.count > 0 && <span className="count">+{item.count}</span>}
-                </li>
-              ))}
-            </ul>
-          </div>
+            setPost((prev) => prev ? { ...prev, likeCount: newCount } : prev);
+            setHasLiked(!hasLiked);
+        } catch (e) {
+            alert("좋아요 처리 실패");
+        } finally {
+            setIsLiking(false);
+        }
+    };
 
-          <div className="category-section">
-            <h4>생활</h4>
-            <ul className="category-list">
-              {categories.life.map((item, index) => (
-                <li key={index}>
-                  <span>{item.name}</span>
-                  {item.count > 0 && <span className="count">+{item.count}</span>}
-                </li>
-              ))}
-            </ul>
-          </div>
+    // 댓글 작성 핸들러
+    const handleAddComment = async () => {
+        if (!isLoggedIn) return alert("로그인이 필요합니다.");
+        if (!commentText.trim()) return alert("내용을 입력해주세요.");
 
-          <div className="category-section">
-            <h4>족보실</h4>
-            <ul className="category-list">
-              {categories.genealogy.map((item, index) => (
-                <li key={index}>
-                  <span>{item.name}</span>
-                  {item.count > 0 && <span className="count">+{item.count}</span>}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </aside>
+        try {
+            // 익명 게시판인지 확인
+            const isAnonBoard = post.boardCode === "ANON1" || post.boardCode === "ANON2";
+            // 익명 게시판이면 강제 true, 아니면 체크박스 값 사용
+            const finalAnon = isAnonBoard ? true : isCommentAnon;
 
-        <main className="post-detail">
-          {isNew && (
-            <>
-              {isLocalBoardTarget && boardLabel && (
-                <div className="board-context-banner">
-                  <strong>{boardLabel}</strong> 게시판에 글을 작성하고 있어요.
-                </div>
-              )}
-              <form className="editor" onSubmit={onSubmit}>
-                <input
-                  className="editor-title"
-                  name="title"
-                  type="text"
-                  value={form.title}
-                  onChange={onChange}
-                  placeholder="글 제목"
-                  required
-                />
-                <div className="editor-area">
-                  {form.content.length === 0 && (
-                    <pre className="editor-placeholder">{rulesText}</pre>
-                  )}
-                  <textarea
-                    className="editor-textarea"
-                    name="content"
-                    value={form.content}
-                    onChange={onChange}
-                    placeholder=""
-                    required
-                  />
-                </div>
-                <div className="editor-footer">
-                  <label className="editor-check">
-                    <input type="checkbox" checked={anon} onChange={onAnonToggle} />
-                    <span>익명</span>
-                  </label>
-                  {!anon && (
-                    <input
-                      type="text"
-                      name="name"
-                      value={form.name}
-                      onChange={onChange}
-                      placeholder="작성자 이름"
-                      style={{ padding: '0.5rem', border: '1px solid #e0e0e0', borderRadius: '4px' }}
-                    />
-                  )}
-                  <button type="submit" className="editor-submit" disabled={saving} aria-label="글작성">
-                    {saving ? '...' : '✏️'}
-                  </button>
-                </div>
-              </form>
+            await createComment(id, commentText, finalAnon);
 
-              {/* 새 글 작성할 때만 커뮤니티 운영 원칙 표시 */}
-              <div className="post-body">
-                <h3>커뮤니티 운영 원칙</h3>
-                <p>
-                  저희는 따뜻한 소통과 정보교류를 목표로 합니다. 
-                  건전한 토론은 환영하지만, 키보드 배틀이나 소모적인 논쟁은 지양해주세요.
-                  위 방향에 맞지 않는 글을 작성하는 사용자는 글쓰기 권한이 제한될 수 있습니다.
-                </p>
+            setCommentText("");
+            setIsCommentAnon(false);
+            const updated = await fetchComments(id);
+            setComments(updated);
+        } catch (e) {
+            console.error(e);
+            alert("댓글 작성 실패");
+        }
+    };
 
-                <h2>&lt;&lt; 게시판 금지 사항 10가지 &gt;&gt;</h2>
-                <ol>
-                  <li>상대 회원에게 욕설</li>
-                  <li>남녀분란 - 성별 갈등을 유발하거나 특정 커뮤니티 성향을 드러내는 글</li>
-                  <li>정치 - 특정 정치인/정당을 비판하거나 지지하는 글</li>
-                  <li>기타 운영 규칙에 위배되는 행위</li>
-                </ol>
+    // With Me 핸들러
+    const handleJoin = async () => {
+        if (!window.confirm("이 모임에 참여하시겠습니까?")) return;
+        try {
+            await joinWithMe(id);
+            alert("참여되었습니다!");
+            window.location.reload();
+        } catch (e) {
+            alert(e.response?.data?.error || "참여 실패");
+        }
+    };
 
-                <p className="post-footer">즐거운 대학생활 되세요! 🎓</p>
-              </div>
-            </>
-          )}
+    const handleCancel = async () => {
+        if (!window.confirm("참여를 취소하시겠습니까?")) return;
+        try {
+            await cancelWithMe(id);
+            alert("취소되었습니다.");
+            window.location.reload();
+        } catch (e) {
+            alert(e.response?.data?.error || "취소 실패");
+        }
+    };
 
-          {!isNew && loadedPost && !isEditing && (
-            <div className="post-body">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-                <h1 style={{ marginTop: 0, flex: 1 }}>{loadedPost.title}</h1>
-                {!isStatic && (
-                  <>
-                    <button type="button" className="editor-submit" onClick={() => setIsEditing(true)}>
-                      수정
-                    </button>
-                    <button type="button" className="editor-submit" onClick={onDelete}>
-                      삭제
-                    </button>
-                  </>
-                )}
-              </div>
-              <p style={{ whiteSpace: 'pre-wrap' }}>{loadedPost.content}</p>
+    if (loading) {
+        return (
+            <div className="detail-page">
+                <Header isLoggedIn={isLoggedIn} logout={logout} />
+                <div className="banner-spacing" />
+                <main className="detail-container">
+                    <div className="detail-card">로딩 중...</div>
+                </main>
+                <Footer />
             </div>
-          )}
+        );
+    }
 
-          {!isNew && isEditing && (
-            <form className="editor" onSubmit={onSubmit}>
-              <input
-                className="editor-title"
-                name="title"
-                type="text"
-                value={form.title}
-                onChange={onChange}
-                required
-              />
-              <div className="editor-area">
-                <textarea
-                  className="editor-textarea"
-                  name="content"
-                  value={form.content}
-                  onChange={onChange}
-                  required
-                />
-              </div>
-              <div className="editor-footer">
-                <label className="editor-check">
-                  <input type="checkbox" checked={anon} onChange={onAnonToggle} />
-                  <span>익명</span>
-                </label>
-                {!anon && (
-                  <input
-                    type="text"
-                    name="name"
-                    value={form.name}
-                    onChange={onChange}
-                    placeholder="작성자 이름"
-                    style={{ padding: '0.5rem', border: '1px solid #e0e0e0', borderRadius: '4px' }}
-                  />
-                )}
-                <button type="button" className="editor-submit" onClick={() => setIsEditing(false)}>
-                  취소
-                </button>
-                <button type="submit" className="editor-submit" disabled={saving}>
-                  {saving ? '...' : '저장'}
-                </button>
-              </div>
-            </form>
-          )}
-        </main>
-      </div>
-    </div>
-  );
-};
+    if (error || !post) {
+        return (
+            <div className="detail-page">
+                <Header isLoggedIn={isLoggedIn} logout={logout} />
+                <div className="banner-spacing" />
+                <main className="detail-container">
+                    <div className="detail-card">{error || "게시글을 찾을 수 없습니다."}</div>
+                    <button className="detail-back-btn" onClick={() => navigate(-1)}>← 뒤로가기</button>
+                </main>
+                <Footer />
+            </div>
+        );
+    }
+
+    return (
+        <div className="detail-page">
+            <Header isLoggedIn={isLoggedIn} logout={logout} />
+            <div className="banner-spacing" />
+
+            <main className="detail-container">
+                {/* 게시글 카드 */}
+                <section className="detail-card">
+                    <header className="detail-post-header">
+                        <div className="detail-title-row">
+                            <h1 className="detail-post-title">{post.title}</h1>
+                            <button className="detail-back-btn" onClick={() => navigate(-1)}>← 뒤로가기</button>
+                        </div>
+                        {/* 작성자, 작성일, 수정일 정보 */}
+                        <div className="detail-post-meta-row">
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                {/* 작성자 이름 */}
+                                <span style={{ fontWeight: 'bold', fontSize: '14px', color: '#333' }}>
+                                    {post.writerName}
+                                </span>
+                                {/* 날짜 및 수정됨 표시 (연하게) */}
+                                <span style={{ fontSize: '12px', color: '#888' }}>
+                                    {post.createdAt}
+                                    {post.updatedAt && (
+                                        <span style={{ marginLeft: '6px' }}>
+                                            (수정됨: {post.updatedAt})
+                                        </span>
+                                    )}
+                                </span>
+                            </div>
+
+                            {/* 우측 카운터 정보들 */}
+                            <div style={{ display:'flex', gap:'10px', alignItems:'center', marginLeft:'auto' }}>
+                                <span>조회 {post.viewCount ?? 0}</span>
+                                <span>추천 {post.likeCount ?? 0}</span>
+                                <span>댓글 {comments.length}</span>
+                            </div>
+                        </div>
+                    </header>
+
+                    <hr className="post-divider" />
+
+                    {/* With Me 정보 카드 (확정 시 읽기모드) */}
+                    {post.withMeInfo && (
+                        <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 12, padding: 16, marginBottom: 20 }}>
+                            <h3 style={{ marginTop: 0, color: "#166534" }}>🤝 With Me 모임 정보</h3>
+                            <ul style={{ listStyle: "none", padding: 0, fontSize: 14, lineHeight: 1.8 }}>
+                                <li>📍 <strong>장소:</strong> {post.withMeInfo.meetingLocation}</li>
+                                <li>⏰ <strong>약속 시간:</strong> {post.withMeInfo.meetingTime.replace("T", " ")}</li>
+                                <li>⏳ <strong>모집 마감:</strong> {post.withMeInfo.recruitmentDeadline.replace("T", " ")}</li>
+                                <li>👥 <strong>참여 현황:</strong> {post.withMeInfo.currentParticipants} / {post.withMeInfo.maxParticipants} 명</li>
+                            </ul>
+
+                            <div style={{ marginTop: 15, borderTop: "1px solid #bbf7d0", paddingTop: 10 }}>
+                                {user && post.writerName === user.nickname ? (
+                                    // 작성자일 경우 참여자 명단 표시
+                                    <div>
+                                        <strong>참여자 명단:</strong>
+                                        {post.withMeInfo.participantNicknames?.length === 0
+                                            ? " (아직 없음)"
+                                            : " " + post.withMeInfo.participantNicknames.join(", ")
+                                        }
+                                    </div>
+                                ) : (
+                                    // 일반 유저일 경우 버튼 영역
+                                    <div>
+                                        {/* 확정 여부(isConfirmed) 체크 */}
+                                        {post.withMeInfo.isConfirmed ? (
+                                            <div style={{
+                                                padding: "10px", background: "#e5e7eb", color: "#374151",
+                                                borderRadius: 8, textAlign: "center", fontWeight: "bold", border: "1px solid #d1d5db"
+                                            }}>
+                                                🔒 모집이 확정되었습니다. (변경 불가)
+                                            </div>
+                                        ) : (
+                                            /* 확정 전: 참여/취소 가능 */
+                                            <>
+                                                {post.withMeInfo.isParticipating ? (
+                                                    <button onClick={handleCancel} style={{ padding: "8px 16px", borderRadius: 8, border: "none", background: "#ef4444", color: "white", cursor: "pointer" }}>
+                                                        참여 취소
+                                                    </button>
+                                                ) : (
+                                                    <button onClick={handleJoin} disabled={post.withMeInfo.isFull} style={{ padding: "8px 16px", borderRadius: 8, border: "none", background: post.withMeInfo.isFull ? "#ccc" : "#22c55e", color: "white", cursor: post.withMeInfo.isFull ? "not-allowed" : "pointer" }}>
+                                                        {post.withMeInfo.isFull ? "모집 마감" : "참여하기"}
+                                                    </button>
+                                                )}
+                                            </>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    <article className="post-content">{post.content}</article>
+
+                    <div className="post-actions-row">
+                        <button
+                            className={`like-button ${hasLiked ? "liked" : ""}`}
+                            onClick={handleLike}
+                            disabled={isLiking}
+                        >
+                            <span className="heart">{hasLiked ? "♥" : "♡"}</span>
+                            <span className="like-text">
+                {hasLiked ? "좋아요 취소" : "좋아요"}
+              </span>
+                        </button>
+                    </div>
+                </section>
+
+                {/* 댓글 영역 */}
+                <section className="comment-section">
+                    <h2 className="section-title">댓글 작성</h2>
+                    <div className="comment-form">
+                        <textarea
+                            className="comment-input"
+                            rows={3}
+                            placeholder={isLoggedIn ? "댓글을 입력하세요." : "로그인이 필요합니다."}
+                            value={commentText}
+                            onChange={(e) => setCommentText(e.target.value)}
+                            disabled={!isLoggedIn}
+                        />
+                        {/* 댓글 익명 체크박스 및 버튼 */}
+                        <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: "10px", marginTop: "8px" }}>
+                            {post && (post.boardCode !== "ANON1" && post.boardCode !== "ANON2") && isLoggedIn && (
+                                <label style={{ fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: "4px" }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={isCommentAnon}
+                                        onChange={(e) => setIsCommentAnon(e.target.checked)}
+                                    />
+                                    익명
+                                </label>
+                            )}
+                        <button className="comment-submit-btn" onClick={handleAddComment}>등록</button>
+                    </div>
+                </div>
+
+                    <div className="comment-list">
+                        <h3 className="section-subtitle">작성된 댓글 ({comments.length})</h3>
+                        {comments.length === 0 ? (
+                            <p className="comment-empty">아직 작성된 댓글이 없습니다.</p>
+                        ) : (
+                            comments.map((c) => (
+                                <div key={c.id} className="comment-item">
+
+                                    {/* 헤더 시작 */}
+                                    <div className="comment-header">
+
+                                        {/* [왼쪽 그룹] 작성자 이름 + 날짜 (+ 수정됨 표시) */}
+                                        <div className="comment-info-left">
+                                            <span className="comment-writer">{c.writerName}</span>
+                                            <span className="comment-date">
+                                                {c.createdAt}
+                                                {c.updatedAt && (
+                                                    <span style={{ marginLeft: "6px", fontSize: "11px", color: "#888" }}>
+                                                        (수정됨: {c.updatedAt})
+                                                    </span>
+                                                )}
+                                            </span>
+                                        </div>
+
+                                        {/* [오른쪽 그룹] 수정/삭제 버튼 (본인일 때만) */}
+                                        {c.isOwner && (
+                                            <div className="comment-actions-right">
+                                                <button
+                                                    className="comment-edit-btn"
+                                                    onClick={() => handleUpdateComment(c.id, c.content)}
+                                                >
+                                                    수정
+                                                </button>
+                                                <button
+                                                    className="comment-delete-btn"
+                                                    onClick={() => handleDeleteComment(c.id)}
+                                                >
+                                                    삭제
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <p className="comment-content">{c.content}</p>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </section>
+
+                <button className="detail-back-btn" onClick={() => navigate(-1)}>← 뒤로가기</button>
+            </main>
+            <Footer />
+        </div>
+    );
+}
 
 export default DetailPage;
