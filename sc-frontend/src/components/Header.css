@@ -31,7 +31,14 @@
 .header-center {
   flex: 1;
   text-align: center;
+<<<<<<< Updated upstream
   overflow: hidden;
+=======
+  overflow: visible;
+  display: flex;
+  justify-content: center;
+  position: relative;
+>>>>>>> Stashed changes
 }
 
 .ticker {
@@ -90,7 +97,11 @@
   list-style: none;
   padding: 0;
   margin: 0;
+<<<<<<< Updated upstream
   animation: slide-up 10s linear infinite;
+=======
+  animation: slide-down 25s linear infinite;
+>>>>>>> Stashed changes
 }
 
 .ticker-vertical li {
@@ -116,3 +127,117 @@
   100% { transform: translateY(0); }
 }
 
+<<<<<<< Updated upstream
+=======
+/* 돋보기 이미지 + 티커 전체 묶음 */
+.header-search-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+}
+
+/* 돋보기 아이콘 버튼 */
+.search-icon-button {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon-image {
+  width: 45px;
+  height: 45px;
+  object-fit: contain;
+}
+
+/* 검색어 입력 + 인기글 1~10위 패널 */
+/* ➜ 돋보기+티커 있는 위치 위를 덮는 오버레이 */
+.header-search-panel {
+  position: absolute;
+  top: 0%;                      /* wrapper 기준 세로 중앙 */
+  left: 50%;                     /* 가로 중앙 */
+  transform: translate(-50%);  /* 정확히 가운데 */
+
+  background: #ffffff;
+  padding: 10px 12px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  width: 320px;                  /* 필요하면 조절 */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 패널 안 검색 인풋 영역 */
+.header-search-form {
+  display: flex;
+  gap: 6px;
+}
+
+.header-search-input {
+  border: 1px solid #d0d4ff;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 13px;
+  flex: 1;
+}
+
+.header-search-input:focus {
+  outline: none;
+  border-color: #2b4fff;
+}
+
+.header-search-submit {
+  border: none;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 13px;
+  background-color: #2b4fff;
+  color: #fff;
+  cursor: pointer;
+}
+
+.header-search-submit:hover {
+  background-color: #1f3bd8;
+}
+
+/* 패널 안 인기글 1~10위 리스트 */
+.search-popular-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 220px;        /* 길어지면 스크롤 */
+  overflow-y: auto;
+  border-top: 1px solid #eef0ff;
+  padding-top: 6px;
+}
+
+.search-popular-list li + li {
+  margin-top: 4px;
+}
+
+.search-popular-item-btn {
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  padding: 4px 2px;
+  font-size: 13px;
+  color: #333;
+  cursor: pointer;
+}
+
+.search-popular-item-btn:hover {
+  background: #f4f6ff;
+  border-radius: 4px;
+}
+
+.search-popular-empty {
+  font-size: 13px;
+  color: #777;
+}
+>>>>>>> Stashed changes

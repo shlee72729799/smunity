@@ -20,7 +20,11 @@
 
 .home-layout {
   display: flex;
+<<<<<<< Updated upstream
   align-items: flex-start;
+=======
+  align-items: stretch;
+>>>>>>> Stashed changes
   gap: 24px;
 }
 
@@ -79,6 +83,7 @@
 .weather-sub {
   font-size: 12px;
   color: #777;
+<<<<<<< Updated upstream
 }
 
 /* 사진·동영상 – 정사각형(1칸) */
@@ -147,6 +152,59 @@
 /* 오늘의 인기글 카드만 가로 2칸 차지 */
 .boards-grid > .board-section:nth-child(1) {
   grid-column: 1 / span 2;
+=======
+}
+
+/* 사진·동영상 – 정사각형(1칸) */
+.media-card {
+  padding: 14px 16px;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.media-list {
+  margin: 4px 0 0;
+  padding-left: 16px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* 교내 공지 – 1칸 */
+.notice-card {
+  min-height: 110px;
+}
+
+.notice-list {
+  margin: 4px 0 0;
+  padding-left: 14px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* ============================= */
+/* 오른쪽 게시판 영역            */
+/* ============================= */
+
+.boards-area {
+  flex: 1;
+  display: flex;
+}
+
+.boards-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(260px, 1fr));
+  grid-template-rows: 110px repeat(3, 1fr);
+  gap: 16px;
+}
+
+/* 오늘의 인기글 카드만 가로 2칸 차지 */
+.boards-grid > .board-section:nth-child(1) {
+  grid-column: 1 / span 2;
+  height: 110px;
+>>>>>>> Stashed changes
 }
 
 /* 게시판 공통 카드 스타일 */
@@ -232,6 +290,23 @@
   font-size: 12px;
   color: #777;
   white-space: nowrap;
+<<<<<<< Updated upstream
+}
+
+.post-empty {
+  padding: 12px 0;
+  font-size: 14px;
+  color: #777;
+}
+
+/* ============================= */
+/* 반응형                         */
+/* ============================= */
+
+@media (max-width: 960px) {
+  .home-layout {
+    flex-direction: column;
+=======
 }
 
 .post-empty {
@@ -262,3 +337,531 @@
     grid-column: auto;
   }
 }
+
+/* ===================================== */
+/* 지도 / 일정 퀵 카드 (중복 정의 정리본)*/
+/* ===================================== */
+
+.quick-links-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.quick-card {
+  flex: 1 1 0;
+  cursor: pointer;
+  background: transparent;
+  border-radius: 18px;
+  height: 150px;
+  display: flex;
+}
+
+.quick-card-inner {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 18px;
+  padding: 6px;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* 지도 카드일 때는 이미지 중심 배치 */
+.quick-card-map .quick-card-inner,
+.quick-card-schedule .quick-card-inner {
+  padding: 4px;
+}
+
+/* 작은 썸네일 – 카드 안 거의 꽉 차게 */
+.map-thumb {
+  width: 100%;
+  height: 100%;
+  max-height: 100px;
+  flex: 1;
+  object-fit: cover;
+  border-radius: 14px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.quick-card-label {
+  font-size: 0.85rem;
+  color: #333;
+}
+
+/* ============================= */
+/* 지도 모달                     */
+/* ============================= */
+
+.map-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.map-modal {
+  background: #ffffff;
+  border-radius: 24px;
+  width: min(950px, 92vw);
+  max-height: 86vh;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.map-modal-header {
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #eee;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.map-modal-close {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+}
+
+/* 이미지 여백 거의 없이 꽉 차게 */
+.map-modal-body {
+  flex: 1;
+  padding: 0;
+  overflow: auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+/* 기본: 모달 안에 꽉 차게 */
+.map-modal-img {
+  width: 100%;
+  height: auto;
+  max-height: calc(86vh - 50px);
+  object-fit: contain;
+  display: block;
+  cursor: zoom-in;
+}
+
+/* 확대 상태: 가로 기준으로 1.8배 확대 */
+.map-modal-img.zoomed {
+  width: 180%;
+  height: auto;
+  max-height: none;
+  cursor: zoom-out;
+}
+
+/* ============================= */
+/* 웹페이지(일정/공지) 모달      */
+/* ============================= */
+
+.web-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2100;
+}
+
+.web-modal {
+  background: #ffffff;
+  border-radius: 24px;
+  width: min(1200px, 95vw);
+  height: min(900px, 90vh);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.web-modal-header {
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #eee;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.web-modal-close {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.web-modal-body {
+  flex: 1;
+  overflow: hidden;
+}
+
+.web-modal-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* ============================= */
+/* 사진 · 동영상 카드 + 버튼     */
+/* ============================= */
+
+/* 우측 상단 + 버튼 */
+.media-plus-btn {
+  font-size: 18px;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 1px solid #dddddd;
+  background: #ffffff;
+  color: #777777;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.media-plus-btn:hover {
+  background: #f5f5f5;
+}
+
+/* 카드 안에 실제 미리보기 영역 (썸네일 + 텍스트 + 위/아래 버튼) */
+.media-card-body {
+  flex: 1;
+  margin-top: 4px;
+  border-radius: 14px;
+  background: #f7f8ff;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+/* 썸네일(작은 이미지/영상) */
+.media-thumb-small {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.media-thumb-small img,
+.media-thumb-small video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 제목 + 통계 텍스트 */
+.media-card-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.media-card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.media-card-stats {
+  font-size: 11px;
+  color: #888;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.media-stat-sep {
+  color: #ccc;
+}
+
+/* 숫자 색상 강조 */
+.media-stat-number {
+  color: #ff4d4f;
+  font-weight: 600;
+}
+
+/* 위/아래 네비게이션 버튼 영역 */
+.media-card-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.media-nav-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.media-nav-btn:hover {
+  background: #f2f4ff;
+}
+
+/* ============================= */
+/* 사진 · 동영상 카드 + 버튼     */
+/* ============================= */
+
+/* 우측 상단 + 버튼 */
+.media-plus-btn {
+  font-size: 18px;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 1px solid #dddddd;
+  background: #ffffff;
+  color: #777777;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.media-plus-btn:hover {
+  background: #f5f5f5;
+}
+
+/* 카드 안 미리보기 전체 래퍼 */
+.media-preview-container {
+  flex: 1;
+  margin-top: 4px;
+  border-radius: 14px;
+  background: #f7f8ff;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+/* 제목 (맨 위) */
+.media-preview-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 이미지/영상 영역 – 카드 대부분 채우기 */
+.media-preview-media {
+  flex: 1;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.media-preview-media img,
+.media-preview-media video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 하단 좋아요/조회수/댓글 */
+.media-preview-stats {
+  font-size: 11px;
+  color: #888;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.media-stat-sep {
+  color: #cccccc;
+}
+
+.media-stat-number {
+  color: #ff4d4f;
+  font-weight: 600;
+}
+
+/* 작은 화면에서 보정 */
+@media (max-width: 960px) {
+  .media-preview-title {
+    font-size: 12px;
+>>>>>>> Stashed changes
+  }
+
+<<<<<<< Updated upstream
+  .left-column {
+    width: 100%;
+    max-width: 360px;
+  }
+
+  .boards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .boards-grid > .board-section:nth-child(1) {
+    grid-column: auto;
+  }
+}
+=======
+.media-preview-empty {
+  flex: 1;
+  margin-top: 4px;
+  border-radius: 14px;
+  background: #f7f8ff;
+  padding: 10px;
+  font-size: 12px;
+  color: #777;
+  line-height: 1.4;
+  text-align: center;
+}
+
+/* 메인 페이지 사진·동영상 팝업 스타일 */
+.media-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2200;
+}
+
+.media-modal {
+  background: #ffffff;
+  border-radius: 24px;
+  width: min(900px, 95vw);
+  max-height: 80vh;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.media-modal-header {
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #eee;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.media-modal-close {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.media-modal-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 60%) minmax(0, 40%);
+}
+
+.media-modal-media {
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+
+.media-modal-media img,
+.media-modal-media video {
+  max-width: 100%;
+  max-height: 60vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.media-modal-meta {
+  padding: 12px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.media-modal-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.media-modal-stats {
+  font-size: 0.85rem;
+  color: #555;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.media-modal-open-shorts {
+  margin-top: auto;
+  align-self: flex-start;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  background: #4b6cff;
+  color: #fff;
+}
+
+@media (max-width: 720px) {
+  .media-modal-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 메인 사진·동영상 카드 드래그 방지 */
+.media-preview-container,
+.media-preview-container * {
+  user-select: none;
+  -webkit-user-drag: none;
+}
+>>>>>>> Stashed changes
