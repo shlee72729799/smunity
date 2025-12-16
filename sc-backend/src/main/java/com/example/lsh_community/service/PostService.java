@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor // final 필드 자동 주입
+@Transactional
 public class PostService {
 
     private final PostRepository postRepository;
@@ -26,6 +27,22 @@ public class PostService {
 
     private final WithMeInfoRepository withMeInfoRepository;
     private final PostParticipantRepository postParticipantRepository;
+
+    // 검색 요청 처리
+    @Transactional(readOnly = true)
+    public List<PostDto> searchPosts(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            // 키워드가 없으면 빈 목록 반환
+            return List.of();
+        }
+
+        // 키워드로 제목 또는 내용 검색 (WITHME 제외)
+        List<Post> posts = postRepository.findByTitleOrContentContainingAndBoardCodeNot(keyword);
+
+        return posts.stream()
+                .map(PostDto::from)
+                .collect(Collectors.toList());
+    }
 
     @Transactional
     public Long createPost(CreatePostRequest request, Long userId) {

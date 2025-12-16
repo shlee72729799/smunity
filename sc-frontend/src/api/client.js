@@ -21,6 +21,17 @@ export async function fetchTop10Posts() {
   return res.data;
 }
 
+// 키워드 검색 엔드포인트 호출 함수
+export async function searchPosts(keyword) {
+    if (!keyword) return [];
+    const res = await client.get(`/api/posts/search`, {
+        params: {
+            keyword: keyword,
+        },
+    });
+    return res.data;
+}
+
 export async function createPost(boardCode, title, content, extraData = {}) {
   const compact = (obj) =>
     Object.fromEntries(

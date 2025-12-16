@@ -86,4 +86,14 @@ public class PostController {
         postService.deletePost(postId, user.id());
         return ResponseEntity.ok().build();
     }
+
+    // 게시글 검색 (GET /api/posts/search?keyword=...)
+    @GetMapping("/search")
+    public ResponseEntity<List<PostDto>> searchPosts(@RequestParam(name = "keyword") String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return ResponseEntity.ok(List.of());
+        }
+        List<PostDto> results = postService.searchPosts(keyword);
+        return ResponseEntity.ok(results);
+    }
 }

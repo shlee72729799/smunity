@@ -9,6 +9,7 @@ import RegisterPage from "./pages/RegisterPage";
 import MyInfoPage from "./pages/MyInfoPage";
 import WithMePage from "./pages/WithMePage";
 import MediaShortsPage from "./pages/MediaShortsPage";
+import SearchPage from "./pages/SearchPage";
 
 function PrivateRoute({ element }) {
   const { isLoggedIn } = useAuth();
@@ -22,6 +23,9 @@ function App() {
         <Routes>
           {/* 메인 홈 */}
           <Route path="/" element={<MainPage />} />
+
+          {/* 검색 결과 페이지 */}
+          <Route path="/search" element={<SearchPage />} />
 
           {/* 사진 · 동영상 쇼츠 페이지 */}
           <Route
