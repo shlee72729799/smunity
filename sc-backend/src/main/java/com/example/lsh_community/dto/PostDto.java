@@ -128,11 +128,26 @@ public record PostDto(
         String code = (p.getBoard() != null) ? p.getBoard().getCode() : null;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"); // 목록은 초 단위 생략
 
+        String displayWriterName;
+
+        // 1. '익명게시판(ANON1)'인 경우 -> 무조건 "익명"
+        if ("ANON1".equals(code)) {
+            displayWriterName = "익명";
+        }
+        // 2. 그 외(ANON2, FREE, JOB 등) -> 작성자가 익명 체크를 했으면 "익명", 아니면 닉네임
+        else {
+            if (p.isAnonymous()) {
+                displayWriterName = "익명";
+            } else {
+                displayWriterName = (p.getAuthor() != null) ? p.getAuthor().getNickname() : "알 수 없음";
+            }
+        }
+
         return new PostDto(
                 p.getId(),
                 code,
                 p.getTitle(),
-                p.getAuthor() != null ? p.getAuthor().getNickname() : "알 수 없음",
+                displayWriterName,
                 p.getContent(), // 목록에서 내용은 필요 없으면 null 처리해도 됨
                 p.getViewCount(),
                 p.getLikeCount(),

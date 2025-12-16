@@ -279,7 +279,7 @@ const BoardPage = () => {
                         {post.title}
                       </Link>
                       <div className="board-main-post-meta">
-                        <span className="board-main-author">{post.author || "익명"}</span>
+                        <span className="board-main-author">{post.writerName || "익명"}</span>
                         {post.createdAt && (
                           <span className="board-main-date">{formatDate(post.createdAt)}</span>
                         )}
