@@ -518,7 +518,7 @@ const MainPage = () => {
               />
 
               <BoardSection
-                title="익명게시판1"
+                title="익명게시판"
                 iconText="👤"
                 posts={anon1Posts}
                 titleLink={boardRoutes.anonymous1}
@@ -526,7 +526,7 @@ const MainPage = () => {
               />
 
               <BoardSection
-                title="익명게시판2"
+                title="이벤트/정보 게시판"
                 iconText="🕵️"
                 posts={anon2Posts}
                 titleLink={boardRoutes.anonymous2}
