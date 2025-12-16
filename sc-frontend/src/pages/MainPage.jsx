@@ -527,7 +527,7 @@ const MainPage = () => {
 
               <BoardSection
                 title="이벤트/정보 게시판"
-                iconText="🕵️"
+                iconText="📌"
                 posts={anon2Posts}
                 titleLink={boardRoutes.anonymous2}
                 morePath={boardRoutes.anonymous2}

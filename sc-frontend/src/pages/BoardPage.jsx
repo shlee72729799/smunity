@@ -36,7 +36,7 @@ const BOARD_CONFIG = {
   },
   anonymous2: {
     label: "이벤트/정보 게시판",
-    icon: "🕵️",
+    icon: "📌",
     boardCode: "ANON2",
     description: "학교 동아리나 교내 이벤트 관련 내용을 공유할 수 있는 공간입니다.",
     allowWrite: true,

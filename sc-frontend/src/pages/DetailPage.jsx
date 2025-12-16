@@ -111,7 +111,7 @@ function DetailPage() {
 
         try {
             // 익명 게시판인지 확인
-            const isAnonBoard = post.boardCode === "ANON1" || post.boardCode === "ANON2";
+            const isAnonBoard = post.boardCode === "ANON1";
             // 익명 게시판이면 강제 true, 아니면 체크박스 값 사용
             const finalAnon = isAnonBoard ? true : isCommentAnon;
 
@@ -301,7 +301,7 @@ function DetailPage() {
                         />
                         {/* 댓글 익명 체크박스 및 버튼 */}
                         <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: "10px", marginTop: "8px" }}>
-                            {post && (post.boardCode !== "ANON1" && post.boardCode !== "ANON2") && isLoggedIn && (
+                            {post && post.boardCode !== "ANON1" && isLoggedIn && (
                                 <label style={{ fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: "4px" }}>
                                     <input
                                         type="checkbox"

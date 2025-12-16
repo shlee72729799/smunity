@@ -17,7 +17,7 @@ public record CommentDto(
         // 댓글 작성자 이름 결정
         String displayWriterName;
 
-        if ("ANON1".equals(boardCode) || "ANON2".equals(boardCode)) {
+        if ("ANON1".equals(boardCode)) {
             displayWriterName = "익명";
         } else {
             displayWriterName = c.isAnonymous() ? "익명" : c.getAuthor().getNickname();

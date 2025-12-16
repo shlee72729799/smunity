@@ -118,7 +118,7 @@ const NewPostPage = () => {
     try {
       setSubmitting(true);
 
-      const forceAnonymous = boardCode === "ANON1" || boardCode === "ANON2";
+      const forceAnonymous = boardCode === "ANON1";
       const isAnonToSend = forceAnonymous ? true : isAnonymous;
 
       if (isEditMode) {
@@ -157,7 +157,7 @@ const NewPostPage = () => {
   };
 
   // 익명 게시판인지 확인하는 헬퍼
-  const isAnonBoard = boardCode === "ANON1" || boardCode === "ANON2";
+  const isAnonBoard = boardCode === "ANON1";
 
   return (
     <div className="main-page">

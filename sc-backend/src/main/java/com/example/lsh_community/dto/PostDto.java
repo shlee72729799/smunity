@@ -46,8 +46,8 @@ public record PostDto(
         // 작성자 이름 결정
         String displayWriterName;
 
-        // 1. 익명 게시판(ANON1, ANON2)은 무조건 익명
-        if ("ANON1".equals(code) || "ANON2".equals(code)) {
+        // 1. 익명 게시판(ANON1)은 무조건 익명
+        if ("ANON1".equals(code)) {
             displayWriterName = "익명";
         }
         // 2. 그 외 게시판은 사용자가 익명을 선택했으면 익명, 아니면 닉네임
