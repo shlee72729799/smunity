@@ -3,6 +3,8 @@ package com.example.lsh_community.controller;
 import com.example.lsh_community.dto.*;
 import com.example.lsh_community.service.EmailService;
 import com.example.lsh_community.service.UserService;
+import com.example.lsh_community.dto.EmailRequestDto;
+import com.example.lsh_community.dto.EmailCheckDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -26,9 +28,16 @@ public class UserController {
 
     // 1. 이메일 인증 코드 발송
     @PostMapping("/email-verification")
-    public ResponseEntity<String> sendEmailCode(@RequestParam String email) {
-        emailService.sendVerificationEmail(email);
+    public ResponseEntity<String> sendEmailCode(@RequestBody EmailRequestDto req) {
+        emailService.sendVerificationEmail(req.email());
         return ResponseEntity.ok("인증 코드가 발송되었습니다.");
+    }
+
+    // 1-1. 인증 번호 확인 (회원가입 전 미리 확인)
+    @PostMapping("/email-verification/confirm")
+    public ResponseEntity<String> checkEmailCode(@RequestBody EmailCheckDto req) {
+        emailService.verifyCodeOnly(req.email(), req.authCode()); // 삭제 안 하는 메서드 호출
+        return ResponseEntity.ok("인증되었습니다.");
     }
 
     // 2. 회원가입

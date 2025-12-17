@@ -45,7 +45,22 @@ public class EmailService {
         sendMail(email, code);
     }
 
-    // 2. 인증 코드 검증
+    // 2. 인증 번호 확인용 (삭제하지 않음 -> 회원가입 버튼 누를 때를 위해 남겨둠)
+    @Transactional(readOnly = true)
+    public void verifyCodeOnly(String email, String code) {
+        EmailVerification verification = verificationRepository.findById(email)
+                .orElseThrow(() -> new IllegalArgumentException("인증 요청된 적 없는 이메일입니다."));
+
+        if (verification.isExpired()) {
+            throw new IllegalArgumentException("인증 코드가 만료되었습니다. 다시 받아주세요.");
+        }
+
+        if (!verification.getVerificationCode().equals(code)) {
+            throw new IllegalArgumentException("인증 코드가 일치하지 않습니다.");
+        }
+    }
+
+    // 2. 인증 코드 검증 (회원가입 완료 시 삭제용)
     @Transactional
     public void verifyCode(String email, String code) {
         EmailVerification verification = verificationRepository.findById(email)
